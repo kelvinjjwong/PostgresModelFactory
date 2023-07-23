@@ -1,3 +1,3 @@
 # PostgresModelFactory
 
-A description of this package.
+A library to access PostgreSQL database by codable models.
