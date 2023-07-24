@@ -37,7 +37,7 @@ public final class DatabaseChange {
     
     private let impl:DatabaseChangeImplement
     
-    init(impl: DatabaseChangeImplement){
+    public init(impl: DatabaseChangeImplement){
         self.impl = impl
     }
     
@@ -78,20 +78,19 @@ public final class DatabaseChange {
         
     }
     
-    public func rename(trigger name: String, on table: String, to newName: String) {
-        
+    public func drop(trigger name:String, on table: String) throws {
+        let change = DatabaseTriggerDefinition(action: .drop, name: name, table: table)
+        try self.impl.apply(change: change)
     }
     
-    public func drop(trigger name:String, on table: String) {
-        
+    public func enable(trigger name: String, on table:String) throws {
+        let change = DatabaseTriggerDefinition(action: .enable, name: name, table: table)
+        try self.impl.apply(change: change)
     }
     
-    public func enable(trigger name: String, on table:String) {
-        
-    }
-    
-    public func disable(trigger name:String, on table:String) {
-        
+    public func disable(trigger name:String, on table:String) throws {
+        let change = DatabaseTriggerDefinition(action: .disable, name: name, table: table)
+        try self.impl.apply(change: change)
     }
     
     
@@ -158,20 +157,20 @@ public final class DatabaseVersionMigrator {
     
     private let impl: DatabaseChangeImplement
     
-    init(sqlGenerator:SchemaSQLGenerator, sqlExecutor:DBExecutor) {
+    public init(sqlGenerator:SchemaSQLGenerator, sqlExecutor:DBExecutor) {
         self.impl = DefaultDatabaseChangeImplementer(sqlGenerator: sqlGenerator, sqlExecutor: sqlExecutor)
     }
     
-    init(impl: DatabaseChangeImplement) {
+    public init(impl: DatabaseChangeImplement) {
         self.impl = impl
     }
     
-    func version(_ version:String, migrate: @escaping (DatabaseChange) throws -> Void) {
+    public func version(_ version:String, migrate: @escaping (DatabaseChange) throws -> Void) {
         self.migrators[version] = migrate
         self.versions.append(version)
     }
     
-    func migrate(cleanVersions:Bool = false) throws {
+    public func migrate(cleanVersions:Bool = false) throws {
         if versions.count > 0 {
             let database = DatabaseChange(impl: impl)
             try impl.initialise()

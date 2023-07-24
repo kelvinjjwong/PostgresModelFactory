@@ -9,8 +9,6 @@
 import Foundation
 import PostgresClientKit
 
-
-
 public protocol PostgresRowValueProtocol {
     
     static func fromPostgresValue(_ dbValue: PostgresValue) -> Self?

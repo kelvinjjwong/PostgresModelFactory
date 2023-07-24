@@ -84,7 +84,7 @@ public final class DatabaseTriggerDefinition {
     private var functionName:String?
     private var functionBody:String?
     
-    init(action:DatabaseTriggerAction, name:String, table:String) {
+    public init(action:DatabaseTriggerAction, name:String, table:String) {
         self.action = action
         self.name = name
         self.table = table

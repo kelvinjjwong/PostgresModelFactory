@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import PostgresClientKit
 import LoggerFactory
+import PostgresClientKit
 
 public class PostgresDB : DBExecutor {
     

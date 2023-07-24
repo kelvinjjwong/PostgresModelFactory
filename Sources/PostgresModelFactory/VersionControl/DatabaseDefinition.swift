@@ -24,18 +24,18 @@ public final class DatabaseTableDefinition {
     private var columns:[DatabaseColumnDefinition] = []
     private var sql:String = ""
 
-    init(name: String, action:DBTableAction) {
+    public init(name: String, action:DBTableAction) {
         self.name = name
         self.action = action
     }
     
-    init(sql:String) {
+    public init(sql:String) {
         self.name = ""
         self.sql = sql
         self.action = .sql
     }
     
-    init(sequence:String, action:DBTableAction) {
+    public init(sequence:String, action:DBTableAction) {
         self.name = sequence
         self.action = action
     }
@@ -122,7 +122,7 @@ public final class DatabaseColumnDefinition {
     private var _defaultValue: String? = nil
     private var _defaultValueType: ColumnType? = nil
     
-    init(name:String, action:DBTableAction, type: ColumnType? = nil,
+    public init(name:String, action:DBTableAction, type: ColumnType? = nil,
          addUniqueConstraint:Bool = false,
          dropUniqueConstraint:Bool = false,
          constraintName:String = "",
