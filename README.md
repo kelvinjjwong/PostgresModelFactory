@@ -28,6 +28,41 @@ Built with ![swift](https://img.shields.io/badge/Swift-5-blue) ![xcode](https://
 - [ViewController](https://github.com/kelvinjjwong/PostgresModelApp/blob/master/PostgresModelApp/ViewController.swift)
 
 
+## Installation
+
+#### Swift Package Manager
+
+Specify dependency in `Package.swift` by adding this:
+
+```swift
+.package(url: "https://github.com/kelvinjjwong/PostgresModelFactory.git", .upToNextMajor(from: "1.0.1"))
+```
+
+In `targets` section, add `PostgresModelFactory` to `dependencies` list:
+
+```swift
+    targets: [
+        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+        // Targets can depend on other targets in this package, and on products in packages this package depends on.
+        .target(
+            name: "MyApp",
+            dependencies: ["PostgresClientKit", "AnotherLibrary"]),
+    ],
+```
+
+Then run `swift build` to download and integrate the package.
+
+#### CocoaPods
+
+Use [CocoaPods](http://cocoapods.org/) to install `PostgresModelFactory` by adding it to `Podfile`:
+
+```ruby
+pod 'PostgresModelFactory', '~> 1.0.1'
+```
+
+Then run `pod install` to download and integrate the package.
+
+
 ## Dependency
 
 - [PostgresClientKit](https://github.com/codewinsdotcom/PostgresClientKit): to manage data in PostgreSQL database ([Apache Licence 2.0](https://github.com/codewinsdotcom/PostgresClientKit/blob/master/LICENSE))
