@@ -16,7 +16,7 @@ public class PostgresDB : DBExecutor {
     
     private let postgresConfig: ConnectionConfiguration
     
-    var schema:String = "public"
+    public var schema:String = "public"
     
     private static var database = ""
     private static var host = ""

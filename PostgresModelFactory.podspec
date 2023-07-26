@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name        = "PostgresModelFactory"
-  s.version     = "1.0.1"
+  s.version     = "1.0.2"
   s.summary     = "A library to access PostgreSQL database by codable models."
   s.homepage    = "https://github.com/kelvinjjwong/PostgresModelFactory"
   s.license     = { :type => "MIT" }

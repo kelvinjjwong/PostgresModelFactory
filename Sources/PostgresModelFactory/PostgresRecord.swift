@@ -156,15 +156,15 @@ public protocol PostgresCustomRecord : PostgresRecord {
 
 extension PostgresCustomRecord {
 
-    func postgresTable() -> String {
+    public func postgresTable() -> String {
         return ""
     }
     
-    func primaryKeys() -> [String] {
+    public func primaryKeys() -> [String] {
         return []
     }
     
-    func autofillColumns() -> [String] {
+    public func autofillColumns() -> [String] {
         return []
     }
 }

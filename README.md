@@ -35,7 +35,7 @@ Built with ![swift](https://img.shields.io/badge/Swift-5-blue) ![xcode](https://
 Specify dependency in `Package.swift` by adding this:
 
 ```swift
-.package(url: "https://github.com/kelvinjjwong/PostgresModelFactory.git", .upToNextMajor(from: "1.0.1"))
+.package(url: "https://github.com/kelvinjjwong/PostgresModelFactory.git", .upToNextMajor(from: "1.0.2"))
 ```
 
 In `targets` section, add `PostgresModelFactory` to `dependencies` list:
@@ -57,7 +57,7 @@ Then run `swift build` to download and integrate the package.
 Use [CocoaPods](http://cocoapods.org/) to install `PostgresModelFactory` by adding it to `Podfile`:
 
 ```ruby
-pod 'PostgresModelFactory', '~> 1.0.1'
+pod 'PostgresModelFactory', '~> 1.0.2'
 ```
 
 Then run `pod install` to download and integrate the package.
