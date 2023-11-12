@@ -8,11 +8,6 @@
 
 import Foundation
 
-public protocol DBExecutor {
-    func execute(sql:String) throws
-    func count(sql:String) -> Int
-}
-
 public protocol SchemaSQLGenerator {
     
     func transform(_ definition:DatabaseTableDefinition) -> [String]
@@ -27,7 +22,7 @@ public protocol DatabaseChangeImplement {
     
     func apply(change:DatabaseTableDefinition) throws
     func apply(change:DatabaseTriggerDefinition) throws
-    func exists(version:String) -> Bool
+    func exists(version:String) throws -> Bool
     func add(version:String) throws
     func initialise() throws
     func cleanVersions() throws
@@ -130,8 +125,8 @@ public final class DefaultDatabaseChangeImplementer : DatabaseChangeImplement {
         }
     }
     
-    public func exists(version: String) -> Bool {
-        let count = self.sqlExecutor.count(sql: self.sqlGenerator.exists(version: version))
+    public func exists(version: String) throws -> Bool {
+        let count = try self.sqlExecutor.count(sql: self.sqlGenerator.exists(version: version))
         return count > 0
     }
     
@@ -179,7 +174,7 @@ public final class DatabaseVersionMigrator {
             }
             for version in versions {
                 if let migration = migrators[version] {
-                    if !impl.exists(version: version) {
+                    if try !impl.exists(version: version) {
                         try migration(database)
                         try impl.add(version: version)
                     }

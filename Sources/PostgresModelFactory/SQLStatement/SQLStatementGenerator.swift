@@ -31,7 +31,7 @@ public class SQLStatement {
 }
 
 
-public final class PostgreSQLStatementGenerator<Record: EncodableDBRecord> {
+public final class SQLStatementGenerator<Record: EncodableDBRecord> {
     
     /// DAO keeps a copy the record's persistenceContainer, so that this
     /// dictionary is built once whatever the database operation. It is
