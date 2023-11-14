@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DatabaseProfileJSONifyTests.swift
 //  
 //
 //  Created by kelvinwong on 2023/11/12.
@@ -8,7 +8,7 @@
 import XCTest
 @testable import PostgresModelFactory
 
-final class DatabaseProfileTests: XCTestCase {
+final class DatabaseProfileJSONifyTests: XCTestCase {
     
     override func setUp() async throws {
         print()

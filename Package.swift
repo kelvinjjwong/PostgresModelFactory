@@ -28,7 +28,7 @@ let package = Package(
             dependencies: ["LoggerFactory", "PostgresClientKit"]),
         .testTarget(
             name: "PostgresModelFactoryTests",
-            dependencies: ["PostgresModelFactory"]),
+            dependencies: ["PostgresModelFactory", "LoggerFactory", "PostgresClientKit"]),
     ],
     swiftLanguageVersions: [.v5]
 )

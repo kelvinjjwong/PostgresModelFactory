@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "7CA17E2E-E7E9-4A28-941A-79712259FD90",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "DatabaseProfileJSONifyTests\/testFromJson()",
+        "DatabaseProfileJSONifyTests\/testToJson()"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PostgresModelFactoryTests",
+        "name" : "PostgresModelFactoryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

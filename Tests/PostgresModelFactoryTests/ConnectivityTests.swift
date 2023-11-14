@@ -1,4 +1,13 @@
+//
+//  ConnectivityTests.swift
+//
+//
+//  Created by kelvinwong on 2023/11/12.
+//
+
+
 import XCTest
+import LoggerFactory
 @testable import PostgresModelFactory
 
 final class ConnectivityTests: XCTestCase {
@@ -6,6 +15,9 @@ final class ConnectivityTests: XCTestCase {
     override func setUp() async throws {
         print()
         print("==== \(self.description) ====")
+        
+        LoggerFactory.append(logWriter: ConsoleLogger())
+        LoggerFactory.enable([.info, .warning, .error, .trace])
     }
     
     func testConnectSuccess() throws {

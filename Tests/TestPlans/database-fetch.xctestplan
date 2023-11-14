@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "31091720-02A8-4632-B996-6A757EA149CB",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "FetchTests\/testGetLatestVersion()",
+        "FetchTests\/testGetOneVersion()"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PostgresModelFactoryTests",
+        "name" : "PostgresModelFactoryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

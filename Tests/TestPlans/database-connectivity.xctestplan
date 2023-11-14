@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "EDF23897-7796-41A2-86B7-91A200AB289E",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "ConnectivityTests\/testConnectFail()",
+        "ConnectivityTests\/testConnectSuccess()"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PostgresModelFactoryTests",
+        "name" : "PostgresModelFactoryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

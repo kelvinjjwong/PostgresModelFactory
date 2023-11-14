@@ -1,11 +1,12 @@
 //
-//  File.swift
+//  FetchTests.swift
 //  
 //
 //  Created by kelvinwong on 2023/11/12.
 //
 
 import XCTest
+import LoggerFactory
 @testable import PostgresModelFactory
 
 final class FetchTests: XCTestCase {
@@ -13,6 +14,9 @@ final class FetchTests: XCTestCase {
     override func setUp() async throws {
         print()
         print("==== \(self.description) ====")
+        
+        LoggerFactory.append(logWriter: ConsoleLogger())
+        LoggerFactory.enable([.info, .warning, .error, .trace])
     }
     
     func testGetLatestVersion() throws {

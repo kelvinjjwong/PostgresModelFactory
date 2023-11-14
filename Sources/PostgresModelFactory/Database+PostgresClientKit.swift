@@ -14,7 +14,7 @@ import PostgresClientKit
 public class PostgresDB : DatabaseInterface {
     
     
-    fileprivate let logger = LoggerFactory.get(category: "DB", subCategory: "PostgresDB", includeTypes: [])
+    fileprivate let logger = LoggerFactory.get(category: "DB", subCategory: "PostgresDB")
     
     private let postgresConfig: ConnectionConfiguration
     
@@ -24,6 +24,8 @@ public class PostgresDB : DatabaseInterface {
     
     public init(databaseProfile: DatabaseProfile) {
         self.databaseProfile = databaseProfile
+        
+        let _ = self.logger.loggingCategory(category: "DB", subCategory: "\(databaseProfile.engine):\(databaseProfile.host):\(databaseProfile.database):\(databaseProfile.schema)")
         
         var configuration = PostgresClientKit.ConnectionConfiguration()
         configuration.host = databaseProfile.host
@@ -37,6 +39,17 @@ public class PostgresDB : DatabaseInterface {
         }
         configuration.ssl = databaseProfile.ssl
         self.postgresConfig = configuration
+    }
+    
+    public func connect() throws {
+        do {
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            self.logger.log(.trace, "Database connected.")
+            do { connection.close() }
+        } catch {
+            self.logger.log(.error, "Error at PostgresDB.connect()", error)
+            throw error
+        }
     }
     
     public func execute(sql: String) throws {
@@ -83,16 +96,6 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "Error at sql: \(_sql)", error)
             throw error
 //            self.logger.log(error)
-        }
-    }
-    
-    public func connect() throws {
-        do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            do { connection.close() }
-        } catch {
-            self.logger.log(.error, "Error at PostgresDB.connect()", error)
-            throw error
         }
     }
     
