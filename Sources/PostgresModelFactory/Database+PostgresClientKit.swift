@@ -13,6 +13,7 @@ import PostgresClientKit
 
 public class PostgresDB : DatabaseInterface {
     
+    
     fileprivate let logger = LoggerFactory.get(category: "DB", subCategory: "PostgresDB", includeTypes: [])
     
     private let postgresConfig: ConnectionConfiguration
@@ -491,5 +492,28 @@ public class PostgresDB : DatabaseInterface {
             throw error
         }
         return tables
+    }
+}
+
+extension PostgresDB : LoggerUser {
+    
+    public func loggingCategory(category: String, subCategory: String) -> Self {
+        let _ = self.logger.loggingCategory(category: category, subCategory: subCategory)
+        return self
+    }
+    
+    public func loggingDestinations(_ destinations: [String]) -> Self {
+        let _ = self.logger.loggingDestinations(destinations)
+        return self
+    }
+    
+    public func excludeLoggingLevels(_ levels: [LogType]) -> Self {
+        let _ = self.logger.excludeLoggingLevels(levels)
+        return self
+    }
+    
+    public func includeLoggingLevels(_ levels: [LogType]) -> Self {
+        let _ = self.logger.includeLoggingLevels(levels)
+        return self
     }
 }
