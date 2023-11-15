@@ -13,12 +13,9 @@ import PostgresClientKit
 
 public class PostgresDB : DatabaseInterface {
     
-    
     fileprivate let logger = LoggerFactory.get(category: "DB", subCategory: "PostgresDB")
     
     private let postgresConfig: ConnectionConfiguration
-    
-    public var schema:String = "public"
     
     private var databaseProfile:DatabaseProfile
     
@@ -39,6 +36,13 @@ public class PostgresDB : DatabaseInterface {
         }
         configuration.ssl = databaseProfile.ssl
         self.postgresConfig = configuration
+        self.schemaSqlGenerator = PostgresSchemaSQLGenerator()
+    }
+    
+    private let schemaSqlGenerator:SchemaSQLGenerator
+    
+    public func getSchemaSQLGenerator() -> SchemaSQLGenerator {
+        return self.schemaSqlGenerator
     }
     
     public func connect() throws {

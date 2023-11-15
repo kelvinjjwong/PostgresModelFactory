@@ -11,6 +11,7 @@ import Foundation
 public protocol DBExecutor {
     func execute(sql:String) throws
     func count(sql:String) throws -> Int
+    func getSchemaSQLGenerator() -> SchemaSQLGenerator
 }
 
 public protocol DatabaseInterface : DBExecutor {

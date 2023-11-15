@@ -34,7 +34,7 @@ final class VersionMigrationTests: XCTestCase {
         databaseProfile.nopsw = true
         
         let db = Database.init(profile: databaseProfile)
-        let migrator = DatabaseVersionMigrator(sqlGenerator: PostgresSchemaSQLGenerator(dropBeforeCreate: true), sqlExecutor: db)
+        let migrator = DatabaseVersionMigrator(db).dropBeforeCreate(true).cleanVersions(true)
         
         migrator.version("v1") { db in
             try db.create(table: "Image", body: { t in
@@ -62,7 +62,7 @@ final class VersionMigrationTests: XCTestCase {
         }
         
         do {
-            try migrator.migrate(cleanVersions: true)
+            try migrator.migrate()
         }catch{
             logger.log(.error, error)
         }

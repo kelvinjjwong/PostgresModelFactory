@@ -19,6 +19,10 @@ public class Database : DatabaseInterface {
         }
     }
     
+    public func getSchemaSQLGenerator() -> SchemaSQLGenerator {
+        return self.impl.getSchemaSQLGenerator()
+    }
+    
     public func connect() throws {
         try self.impl.connect()
     }

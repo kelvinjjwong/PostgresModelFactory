@@ -10,10 +10,13 @@ import Foundation
 
 public final class PostgresSchemaSQLGenerator : SchemaSQLGenerator {
     
-    private let dropBeforeCreate:Bool
+    public init(){}
     
-    public init(dropBeforeCreate:Bool = false){
+    private var dropBeforeCreate = true
+    
+    public func dropBeforeCreate(_ dropBeforeCreate: Bool) -> Self {
         self.dropBeforeCreate = dropBeforeCreate
+        return self
     }
     
     private func sqlType(of type: ColumnType?) -> String {

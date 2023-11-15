@@ -16,6 +16,7 @@ public protocol SchemaSQLGenerator {
     func initialise() -> String
     func cleanVersions() -> String
     func add(version: String) -> String
+    func dropBeforeCreate(_ dropBeforeCreate:Bool) -> Self
 }
 
 public protocol DatabaseChangeImplement {
@@ -26,6 +27,8 @@ public protocol DatabaseChangeImplement {
     func add(version:String) throws
     func initialise() throws
     func cleanVersions() throws
+    func shouldCleanVersions(_ shouldCleanVersions:Bool)
+    func shouldCleanVersions() -> Bool
 }
 
 public final class DatabaseChange {
@@ -106,9 +109,19 @@ public final class DefaultDatabaseChangeImplementer : DatabaseChangeImplement {
     private let sqlGenerator:SchemaSQLGenerator
     private let sqlExecutor:DBExecutor
     
-    public init(sqlGenerator:SchemaSQLGenerator, sqlExecutor:DBExecutor) {
-        self.sqlGenerator = sqlGenerator
+    public init(sqlExecutor:DBExecutor) {
         self.sqlExecutor = sqlExecutor
+        self.sqlGenerator = sqlExecutor.getSchemaSQLGenerator()
+    }
+    
+    private var _shouldCleanVersions = false
+    
+    public func shouldCleanVersions(_ shouldCleanVersions: Bool) {
+        self._shouldCleanVersions = shouldCleanVersions
+    }
+    
+    public func shouldCleanVersions() -> Bool {
+        return self._shouldCleanVersions
     }
     
     public func apply(change: DatabaseTableDefinition) throws {
@@ -151,13 +164,21 @@ public final class DatabaseVersionMigrator {
     var migrators:[String : ((DatabaseChange) throws -> Void)] = [:]
     
     private let impl: DatabaseChangeImplement
+    private let sqlExecutor:DBExecutor
     
-    public init(sqlGenerator:SchemaSQLGenerator, sqlExecutor:DBExecutor) {
-        self.impl = DefaultDatabaseChangeImplementer(sqlGenerator: sqlGenerator, sqlExecutor: sqlExecutor)
+    public init(_ sqlExecutor:DBExecutor) {
+        self.sqlExecutor = sqlExecutor
+        self.impl = DefaultDatabaseChangeImplementer(sqlExecutor: sqlExecutor)
     }
     
-    public init(impl: DatabaseChangeImplement) {
-        self.impl = impl
+    public func dropBeforeCreate(_ dropBeforeCreate:Bool) -> Self {
+        let _ = self.sqlExecutor.getSchemaSQLGenerator().dropBeforeCreate(dropBeforeCreate)
+        return self
+    }
+    
+    public func cleanVersions(_ cleanVersions:Bool) -> Self {
+        let _ = self.impl.shouldCleanVersions(cleanVersions)
+        return self
     }
     
     public func version(_ version:String, migrate: @escaping (DatabaseChange) throws -> Void) {
@@ -165,11 +186,11 @@ public final class DatabaseVersionMigrator {
         self.versions.append(version)
     }
     
-    public func migrate(cleanVersions:Bool = false) throws {
+    public func migrate() throws {
         if versions.count > 0 {
             let database = DatabaseChange(impl: impl)
             try impl.initialise()
-            if cleanVersions {
+            if self.impl.shouldCleanVersions() {
                 try impl.cleanVersions()
             }
             for version in versions {
