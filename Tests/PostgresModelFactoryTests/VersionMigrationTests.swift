@@ -46,6 +46,14 @@ final class VersionMigrationTests: XCTestCase {
             })
         }
         
+        do {
+            try migrator.migrate()
+        }catch{
+            logger.log(.error, error)
+        }
+        
+        // verify
+        
         final class Image : DatabaseRecord {
             
             var id = 0
@@ -60,14 +68,6 @@ final class VersionMigrationTests: XCTestCase {
                 return ["id"]
             }
         }
-        
-        do {
-            try migrator.migrate()
-        }catch{
-            logger.log(.error, error)
-        }
-        
-        // verify
         
         let record = Image()
         record.photoDate = Date()

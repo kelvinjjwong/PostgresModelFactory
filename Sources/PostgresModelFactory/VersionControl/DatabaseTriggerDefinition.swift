@@ -1,6 +1,5 @@
 //
 //  DatabaseTriggerDefinition.swift
-//  PostgresModelApp
 //
 //  Created by Kelvin Wong on 2023/7/23.
 //

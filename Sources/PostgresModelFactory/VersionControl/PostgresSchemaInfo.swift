@@ -1,6 +1,5 @@
 //
-//  TableInfo.swift
-//  TreeView
+//  PostgresSchemaInfo.swift
 //
 //  Created by Kelvin Wong on 2020/4/19.
 //  Copyright © 2020 nonamecat. All rights reserved.

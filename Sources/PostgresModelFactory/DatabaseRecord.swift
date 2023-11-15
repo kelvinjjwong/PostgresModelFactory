@@ -1,6 +1,5 @@
 //
-//  PostgresRecord.swift
-//  ImageDocker
+//  DatabaseRecord.swift
 //
 //  Created by Kelvin Wong on 2020/4/26.
 //  Copyright © 2020 nonamecat. All rights reserved.
