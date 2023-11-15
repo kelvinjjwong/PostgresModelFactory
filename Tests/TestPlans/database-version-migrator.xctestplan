@@ -1,0 +1,27 @@
+{
+  "configurations" : [
+    {
+      "id" : "6D85EBC5-CDAB-4E36-8DA3-C8C57F9E0940",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "VersionMigrationTests\/testInitializeVersionTable()"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PostgresModelFactoryTests",
+        "name" : "PostgresModelFactoryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -44,22 +44,22 @@ public class PostgresDB : DatabaseInterface {
     public func connect() throws {
         do {
             let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            self.logger.log(.trace, "Database connected.")
+            self.logger.log(.trace, "[connect] Database connected.")
             do { connection.close() }
         } catch {
-            self.logger.log(.error, "Error at PostgresDB.connect()", error)
+            self.logger.log(.error, "[connect] Error at PostgresDB.connect()", error)
             throw error
         }
     }
     
     public func execute(sql: String) throws {
-        self.logger.log(.trace, " >>> execute sql: \(sql)")
+        self.logger.log(.trace, "[execute] >>> execute sql: \(sql)")
         let statement = SQLStatement(sql: sql)
         try self.execute(statement: statement)
     }
     
     public func execute(sql: String, parameterValues:[DatabaseValueConvertible?]) throws {
-        self.logger.log(.trace, " >>> execute sql: \(sql)")
+        self.logger.log(.trace, "[execute] >>> execute sql: \(sql)")
         let statement = SQLStatement(sql: sql)
         statement.arguments = parameterValues
         try self.execute(statement: statement)
@@ -89,11 +89,11 @@ public class PostgresDB : DatabaseInterface {
             let generator = SQLStatementGenerator(table: table, record: object)
             let statement = generator.deleteStatement(keyColumns: primaryKeys)
             _sql = statement.sql
-            self.logger.log(.trace, " >>> execute sql: \(_sql)")
+            self.logger.log(.trace, "[delete] >>> execute sql: \(_sql)")
             try self.execute(statement: statement)
         }catch{
-            self.logger.log(.error, "Error at PostgresDB.delete(object:table:primaryKeys)")
-            self.logger.log(.error, "Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[delete] Error at PostgresDB.delete(object:table:primaryKeys)")
+            self.logger.log(.error, "[delete] Error at sql: \(_sql)", error)
             throw error
 //            self.logger.log(error)
         }
@@ -106,7 +106,7 @@ public class PostgresDB : DatabaseInterface {
             
             let generator = SQLStatementGenerator(table: table, record: object)
             let existsStatement = generator.existsStatement(keyColumns: primaryKeys)
-            self.logger.log(.debug, "[save][ifexists] >>> execute sql: \(existsStatement.sql) , parameters: \(existsStatement.arguments)")
+            self.logger.log(.trace, "[save][ifexists] >>> execute sql: \(existsStatement.sql) , parameters: \(existsStatement.arguments)")
             let existsStmt = try connection.prepareStatement(text: existsStatement.sql)
             defer { existsStmt.close() }
             
@@ -125,14 +125,14 @@ public class PostgresDB : DatabaseInterface {
             if exists {
             
                 let statement = generator.updateStatement(keyColumns: primaryKeys, autofillColumns: autofillColumns)
-                self.logger.log(.debug, "[save][update] >>> execute sql: \(statement.sql)")
+                self.logger.log(.trace, "[save][update] >>> execute sql: \(statement.sql) , parameters: \(statement.arguments)")
                 let stmt = try connection.prepareStatement(text: statement.sql)
                 defer { stmt.close() }
                 
                 let _ = try stmt.execute(parameterValues: statement.arguments)
             } else {
                 let statement = generator.insertStatement(autofillColumns: autofillColumns)
-                self.logger.log(.debug, "[save][insert] >>> execute sql: \(statement.sql)")
+                self.logger.log(.trace, "[save][insert] >>> execute sql: \(statement.sql) , parameters: \(statement.arguments)")
                 let stmt = try connection.prepareStatement(text: statement.sql)
                 defer { stmt.close() }
                 
@@ -163,7 +163,7 @@ public class PostgresDB : DatabaseInterface {
             }
             _sql = "\(sql) \(pagination)"
             
-            self.logger.log(.trace, " >>> query sql: \(_sql)")
+            self.logger.log(.trace, "[query] >>> query sql: \(_sql) , parameters: \(values)")
             
             let stmt = try connection.prepareStatement(text: "\(_sql)")
             defer { stmt.close() }
@@ -182,8 +182,8 @@ public class PostgresDB : DatabaseInterface {
             }
             return result
         } catch {
-            self.logger.log(.error, "Error at PostgresDB.query(object:table:sql:values:offset:limit) -> [T]")
-            self.logger.log(.error, "Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:sql:values:offset:limit) -> [T]")
+            self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
 //            if "\(error)".contains("Host is down") {
 //
@@ -211,7 +211,7 @@ public class PostgresDB : DatabaseInterface {
             
             _sql = "\(statement.sql) \(pagination)"
             
-            self.logger.log(.trace, " >>> query sql: \(_sql)")
+            self.logger.log(.trace, "[query] >>> query sql: \(_sql)")
             
             let stmt = try connection.prepareStatement(text: "\(_sql)")
             defer { stmt.close() }
@@ -230,8 +230,8 @@ public class PostgresDB : DatabaseInterface {
             }
             return result
         } catch {
-            self.logger.log(.error, "Error at PostgresDB.query(object:table:where:orderBy:values:offset:limit) -> [T]")
-            self.logger.log(.error, "Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:where:orderBy:values:offset:limit) -> [T]")
+            self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
             return []
@@ -254,7 +254,7 @@ public class PostgresDB : DatabaseInterface {
             
             _sql = statement.sql
             
-            self.logger.log(.trace, " >>> query sql: \(_sql)")
+            self.logger.log(.trace, "[query] >>> query sql: \(_sql)")
             
             let stmt = try connection.prepareStatement(text: _sql)
             defer { stmt.close() }
@@ -273,8 +273,8 @@ public class PostgresDB : DatabaseInterface {
             }
             return result
         } catch {
-            self.logger.log(.error, "Error at PostgresDB.query(object:table:parameters:orderBy) -> [T]")
-            self.logger.log(.error, "Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:parameters:orderBy) -> [T]")
+            self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
             return []
@@ -313,7 +313,7 @@ public class PostgresDB : DatabaseInterface {
     }
     
     public func count(sql:String, parameterValues: [DatabaseValueConvertible?]) throws -> Int {
-        self.logger.log(.trace, " >>> count sql: \(sql)")
+        self.logger.log(.trace, "[count] >>> count sql: \(sql) , parameters: \(parameterValues)")
         do {
             let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
             defer { connection.close() }
@@ -332,8 +332,8 @@ public class PostgresDB : DatabaseInterface {
             }
             return result
         } catch {
-            self.logger.log(.error, "Error at PostgresDB.count(sql:parameterValues)")
-            self.logger.log(.error, "Error sql: \(sql)", error)
+            self.logger.log(.error, "[count] Error at PostgresDB.count(sql:parameterValues)")
+            self.logger.log(.error, "[count] Error sql: \(sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
             return -1
@@ -356,6 +356,7 @@ public class PostgresDB : DatabaseInterface {
             //self.logger.log(">> count sql: \(statement.sql)")
             let stmt = try connection.prepareStatement(text: statement.sql)
             _sql = statement.sql
+            self.logger.log(.trace, "[count] >>> count sql: \(_sql) , parameters: \(values)")
             defer { stmt.close() }
 
             let cursor = try stmt.execute(parameterValues: values)
@@ -368,8 +369,8 @@ public class PostgresDB : DatabaseInterface {
             }
             return result
         } catch {
-            self.logger.log(.error, "Error at PostgresDB.count(object:table:parameters)")
-            self.logger.log(.error, "Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[count] Error at PostgresDB.count(object:table:parameters)")
+            self.logger.log(.error, "[count] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
             return -1
@@ -387,6 +388,7 @@ public class PostgresDB : DatabaseInterface {
             //let columnNames = generator.persistenceContainer.columns
             
             _sql = statement.sql
+            self.logger.log(.trace, "[count] >>> count sql: \(_sql) , parameters: \(values)")
 //            self.logger.log(">> count sql: \(statement.sql)")
             let stmt = try connection.prepareStatement(text: statement.sql)
             defer { stmt.close() }
@@ -401,8 +403,8 @@ public class PostgresDB : DatabaseInterface {
             }
             return result
         } catch {
-            self.logger.log(.error, "Error at PostgresDB.count(object:table:where:values)")
-            self.logger.log(.error, "Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[count] Error at PostgresDB.count(object:table:where:values)")
+            self.logger.log(.error, "[count] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
             return -1

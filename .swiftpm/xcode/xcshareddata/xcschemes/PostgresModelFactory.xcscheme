@@ -52,6 +52,9 @@
          <TestPlanReference
             reference = "container:Tests/TestPlans/database-fetch.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Tests/TestPlans/database-version-migrator.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference

@@ -30,9 +30,8 @@ final class FetchTests: XCTestCase {
         databaseProfile.schema = "public"
         databaseProfile.nopsw = true
         
-        final class Version : CustomQueryRecord {
+        final class Version : DatabaseRecord {
             var ver:Int = 0
-            public init() {}
         }
         
         var err:Error?
@@ -61,9 +60,8 @@ final class FetchTests: XCTestCase {
         databaseProfile.schema = "public"
         databaseProfile.nopsw = true
         
-        final class Version : CustomQueryRecord {
+        final class Version : DatabaseRecord {
             var ver:String? = nil
-            public init() {}
         }
         
         var err:Error?

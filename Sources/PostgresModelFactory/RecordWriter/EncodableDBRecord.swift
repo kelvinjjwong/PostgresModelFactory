@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import LoggerFactory
 import PostgresClientKit
 
 /// Types that adopt EncodableRecord can be encoded into the database.
@@ -159,6 +160,9 @@ extension EncodableDBRecord where Self: Encodable {
 
 /// The encoder that encodes a record into PostgresDBValueContainer
 private class RecordEncoder<Record: EncodableDBRecord>: Encoder {
+    
+    let logger = LoggerFactory.get(category: "DB", subCategory: "ModelFactory:RecordEncoder")
+    
     var codingPath: [CodingKey] { return [] }
     var userInfo: [CodingUserInfoKey: Any] { return Record.dbRecordEncodingUserInfo }
     private var _persistenceContainer: PostgresDBValueContainer

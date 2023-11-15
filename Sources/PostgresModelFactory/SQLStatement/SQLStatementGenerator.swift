@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import LoggerFactory
 import PostgresClientKit
 
 /// A statement represents an SQL query.
@@ -33,6 +34,8 @@ public class SQLStatement {
 
 public final class SQLStatementGenerator<Record: EncodableDBRecord> {
     
+    let logger = LoggerFactory.get(category: "DB", subCategory: "SQLStatementGenerator")
+    
     /// DAO keeps a copy the record's persistenceContainer, so that this
     /// dictionary is built once whatever the database operation. It is
     /// guaranteed to have at least one (key, value) pair.
@@ -44,6 +47,7 @@ public final class SQLStatementGenerator<Record: EncodableDBRecord> {
     public init(table:String, record: Record) {
         self.databaseTableName = table
         persistenceContainer = PostgresDBValueContainer(record)
+        self.logger.log(.debug, "persistenceContainer: \(persistenceContainer)")
     }
     
     func insertStatement(autofillColumns:[String] = []) -> SQLStatement {
@@ -124,7 +128,6 @@ public final class SQLStatementGenerator<Record: EncodableDBRecord> {
     }
     
     func existsStatement(keyColumns: [String]) -> SQLStatement {
-        
         let query = ExistsQuery(
             tableName: databaseTableName,
             conditionColumns: keyColumns)

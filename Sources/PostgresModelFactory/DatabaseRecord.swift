@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import LoggerFactory
 import PostgresClientKit
 
 public protocol DatabaseRecord : Codable, EncodableDBRecord {
@@ -15,7 +16,7 @@ public protocol DatabaseRecord : Codable, EncodableDBRecord {
     
     func save(_ db: DatabaseInterface) throws
     
-    func postgresTable() -> String
+    func table() -> String
     
     func primaryKeys() -> [String]
     
@@ -34,55 +35,55 @@ extension DatabaseRecord {
     }
     
     public func save(_ db: DatabaseInterface) throws {
-        try db.save(object: self, table: self.postgresTable(), primaryKeys: self.primaryKeys(), autofillColumns: self.autofillColumns())
+        try db.save(object: self, table: self.table(), primaryKeys: self.primaryKeys(), autofillColumns: self.autofillColumns())
     }
     
     public func delete(_ db: DatabaseInterface, keyColumns:[String] = []) throws {
-        try db.delete(object: self, table: self.postgresTable(), primaryKeys: keyColumns.count > 0 ? keyColumns : self.primaryKeys())
+        try db.delete(object: self, table: self.table(), primaryKeys: keyColumns.count > 0 ? keyColumns : self.primaryKeys())
     }
     
     private func count(_ db: DatabaseInterface) throws -> Int {
-        return try db.count(object: self, table: self.postgresTable(), parameters: [:])
+        return try db.count(object: self, table: self.table(), parameters: [:])
     }
     
     private func count(_ db: DatabaseInterface, parameters: [String : DatabaseValueConvertible?]) throws -> Int {
-        return try db.count(object: self, table: self.postgresTable(), parameters: parameters)
+        return try db.count(object: self, table: self.table(), parameters: parameters)
     }
     
     private func count(_ db: DatabaseInterface, where whereSQL:String, parameters: [DatabaseValueConvertible?] = []) throws -> Int {
-        return try db.count(object: self, table: self.postgresTable(), where: whereSQL, values: parameters)
+        return try db.count(object: self, table: self.table(), where: whereSQL, values: parameters)
     }
     
     private func fetchOne(_ db: DatabaseInterface) throws -> Self? {
-        return try db.queryOne(object: self, table: self.postgresTable(), parameters: [:])
+        return try db.queryOne(object: self, table: self.table(), parameters: [:])
     }
     
     private func fetchOne(_ db: DatabaseInterface, parameters: [String : DatabaseValueConvertible?]) throws -> Self? {
-        return try db.queryOne(object: self, table: self.postgresTable(), parameters: parameters)
+        return try db.queryOne(object: self, table: self.table(), parameters: parameters)
     }
     
     private func fetchOne(_ db: DatabaseInterface, where whereSQL:String, orderBy:String = "", values:[DatabaseValueConvertible?] = []) throws -> Self? {
-        return try db.queryOne(object: self, table: self.postgresTable(), where: whereSQL, orderBy: orderBy, values: values)
+        return try db.queryOne(object: self, table: self.table(), where: whereSQL, orderBy: orderBy, values: values)
     }
     
     private func fetchOne(_ db: DatabaseInterface, sql: String, values:[DatabaseValueConvertible?] = []) throws -> Self? {
-        return try db.queryOne(object: self, table: self.postgresTable(), sql: sql, values: values)
+        return try db.queryOne(object: self, table: self.table(), sql: sql, values: values)
     }
     
     private func fetchAll(_ db: DatabaseInterface, orderBy:String = "") throws -> [Self] {
-        return try db.query(object: self, table: self.postgresTable(), parameters: [:], orderBy: orderBy)
+        return try db.query(object: self, table: self.table(), parameters: [:], orderBy: orderBy)
     }
     
     private func fetchAll(_ db: DatabaseInterface, parameters: [String : DatabaseValueConvertible?], orderBy: String = "") throws -> [Self] {
-        return try db.query(object: self, table: self.postgresTable(), parameters: parameters, orderBy: orderBy)
+        return try db.query(object: self, table: self.table(), parameters: parameters, orderBy: orderBy)
     }
     
     private func fetchAll(_ db: DatabaseInterface, where whereSQL:String, orderBy:String = "", values:[DatabaseValueConvertible?] = [], offset:Int? = nil, limit:Int? = nil) throws -> [Self] {
-        return try db.query(object: self, table: self.postgresTable(), where: whereSQL, orderBy: orderBy, values: values, offset: offset, limit: limit)
+        return try db.query(object: self, table: self.table(), where: whereSQL, orderBy: orderBy, values: values, offset: offset, limit: limit)
     }
     
     private func fetchAll(_ db: DatabaseInterface, sql: String, values:[DatabaseValueConvertible?] = [], offset:Int? = nil, limit:Int? = nil) throws -> [Self] {
-        return try db.query(object: self, table: self.postgresTable(), sql: sql, values: values, offset: offset, limit: limit)
+        return try db.query(object: self, table: self.table(), sql: sql, values: values, offset: offset, limit: limit)
     }
 }
 
@@ -149,15 +150,14 @@ extension DatabaseRecord {
     }
 }
 
+extension DatabaseRecord {
 
-public protocol CustomQueryRecord : DatabaseRecord {
-    
-}
-
-extension CustomQueryRecord {
-
-    public func postgresTable() -> String {
-        return ""
+    public func table() -> String {
+        if let type = String(describing: self).components(separatedBy: ".").last {
+            return type
+        }else{
+            return ""
+        }
     }
     
     public func primaryKeys() -> [String] {
@@ -165,6 +165,20 @@ extension CustomQueryRecord {
     }
     
     public func autofillColumns() -> [String] {
-        return []
+        return primaryKeys()
+    }
+    
+    public func toJSON() -> String {
+        let logger = LoggerFactory.get(category: "DB", subCategory: "ModelFactory:DatabaseRecord")
+        
+        let jsonEncoder = JSONEncoder()
+        do {
+            let jsonData = try jsonEncoder.encode(self)
+            let json = String(data: jsonData, encoding: String.Encoding.utf8)
+            return json ?? "{}"
+        }catch{
+            logger.log(.error, "Unable to convert to JSON", error)
+            return "{}"
+        }
     }
 }

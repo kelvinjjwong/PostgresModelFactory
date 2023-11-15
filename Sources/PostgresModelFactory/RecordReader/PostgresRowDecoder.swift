@@ -33,7 +33,7 @@ class PostgresRowDecoder {
 /// The decoder that decodes a record from a database row
 private struct _RowDecoder<R: Decodable>: Decoder {
     
-    let logger = LoggerFactory.get(category: "_RowDecoder")
+    let logger = LoggerFactory.get(category: "DB", subCategory: "ModelFactory:_RowDecoder")
     var row: PostgresRow
     var codingPath: [CodingKey]
     var userInfo: [CodingUserInfoKey: Any] { return [:] }
@@ -238,8 +238,7 @@ private struct _RowDecoder<R: Decodable>: Decoder {
                 let decoder = _RowDecoder(row: row, codingPath: codingPath)
                 return try T(from: decoder)
             } catch {
-                self.logger.log("Error at PostgresRowDecoder.decoe<T>(type:fromRoww:codingPath) throws -> T")
-                self.logger.log(error)
+                self.logger.log(.error, "Error at PostgresRowDecoder.decoe<T>(type:fromRoww:codingPath) throws -> T", error)
                 // Support for DatabaseValueConversionErrorTests.testDecodableFetchableRecord2
                 fatalConversionError(
                     to: type,
@@ -267,8 +266,7 @@ private struct _RowDecoder<R: Decodable>: Decoder {
                     codingPath: codingPath + [key])
                 return try T(from: columnDecoder)
             } catch {
-                self.logger.log("Error at PostgresRowDecoder.decoe<T>(type:fromRoww:columnAtIndex:key) throws -> T")
-                self.logger.log(error)
+                self.logger.log(.error, "Error at PostgresRowDecoder.decoe<T>(type:fromRoww:columnAtIndex:key) throws -> T", error)
                 //self.logger.log("debug 10, columnIndex:\(index), isNull? \(row.hasNull(atIndex: index))")
                 guard let data = Data.decodeIfPresent(from: row, atUncheckedIndex: index) else{
                     fatalConversionError(
