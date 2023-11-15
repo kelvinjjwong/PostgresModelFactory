@@ -193,7 +193,6 @@ public class PostgresDB : DatabaseInterface {
 //
 //            }
             throw error
-            return []
         }
     }
     
@@ -238,7 +237,6 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
-            return []
         }
     }
     
@@ -281,7 +279,6 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
-            return []
         }
     }
     
@@ -340,7 +337,6 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "[count] Error sql: \(sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
-            return -1
         }
     }
     
@@ -377,7 +373,6 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "[count] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
-            return -1
         }
     }
     
@@ -411,7 +406,6 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "[count] Error at sql: \(_sql)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
-            return -1
         }
     }
     
@@ -448,7 +442,6 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "Error at PostgresDB.queryTableInfo", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
-            return TableInfo(table)
         }
     }
     
