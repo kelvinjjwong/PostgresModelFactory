@@ -35,10 +35,6 @@ public class Database : DatabaseInterface {
         try self.impl.execute(sql: sql, parameterValues: parameterValues)
     }
     
-    public func execute(statement: SQLStatement) throws {
-        try self.impl.execute(statement: statement)
-    }
-    
     public func delete<T>(object: T, table: String, primaryKeys: [String]) throws where T : EncodableDBRecord, T : Decodable, T : Encodable {
         try self.impl.delete(object: object, table: table, primaryKeys: primaryKeys)
     }

@@ -209,6 +209,7 @@ public final class DatabaseVersionMigrator {
                     }
                 }
             }
+            self.logger.log(.trace, "Schema versions are ready.")
         }
     }
 }

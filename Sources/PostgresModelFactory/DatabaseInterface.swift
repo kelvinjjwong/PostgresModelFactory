@@ -19,7 +19,6 @@ public protocol DatabaseInterface : DBExecutor {
     func connect() throws
     func execute(sql: String) throws
     func execute(sql: String, parameterValues:[DatabaseValueConvertible?]) throws
-    func execute(statement: SQLStatement) throws
     func delete<T:Codable & EncodableDBRecord>(object:T, table:String, primaryKeys:[String]) throws
     func save<T:Codable & EncodableDBRecord>(object:T, table:String, primaryKeys:[String], autofillColumns:[String]) throws
     func query<T:Codable & EncodableDBRecord>(object:T, table:String, sql:String, values:[DatabaseValueConvertible?], offset:Int?, limit:Int?) throws -> [T]

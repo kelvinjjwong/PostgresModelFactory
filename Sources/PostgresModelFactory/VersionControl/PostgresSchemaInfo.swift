@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LoggerFactory
 
 public enum DatabaseType {
     case int
@@ -84,5 +85,19 @@ public class PostgresColumnInfo : Codable & EncodableDBRecord {
             return .double
         }
         return .unknown
+    }
+    
+    public func toJSON() -> String {
+        let logger = LoggerFactory.get(category: "DB", subCategory: "ModelFactory:PostgresSchemaInfo")
+        
+        let jsonEncoder = JSONEncoder()
+        do {
+            let jsonData = try jsonEncoder.encode(self)
+            let json = String(data: jsonData, encoding: String.Encoding.utf8)
+            return json ?? "{}"
+        }catch{
+            logger.log(.error, "Unable to convert to JSON", error)
+            return "{}"
+        }
     }
 }

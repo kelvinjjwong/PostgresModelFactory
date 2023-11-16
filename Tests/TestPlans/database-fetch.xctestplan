@@ -15,7 +15,8 @@
     {
       "selectedTests" : [
         "FetchTests\/testGetLatestVersion()",
-        "FetchTests\/testGetOneVersion()"
+        "FetchTests\/testGetOneVersion()",
+        "FetchTests\/testGetTableInfo()"
       ],
       "target" : {
         "containerPath" : "container:",

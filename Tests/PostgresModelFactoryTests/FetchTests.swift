@@ -19,62 +19,51 @@ final class FetchTests: XCTestCase {
         LoggerFactory.enable([.info, .warning, .error, .trace])
     }
     
-    func testGetLatestVersion() throws {
+    func testGetTableInfo() throws {
+        
+        let logger = LoggerFactory.get(category: "DB", subCategory: "testGetTableInfo")
         
         let databaseProfile = DatabaseProfile()
         databaseProfile.engine = "PostgreSQL"
         databaseProfile.host = "localhost"
         databaseProfile.port = 5432
-        databaseProfile.user = "kelvinwong"
-        databaseProfile.database = "ImageDocker"
+        databaseProfile.user = "postgres"
+        databaseProfile.database = "postgres"
         databaseProfile.schema = "public"
         databaseProfile.nopsw = true
         
-        final class Version : DatabaseRecord {
-            var ver:Int = 0
+        let db = Database.init(profile: databaseProfile)
+        
+        let migrator = DatabaseVersionMigrator(db).dropBeforeCreate(true).cleanVersions(true)
+        
+        migrator.version("v1") { db in
+            try db.create(table: "Image", body: { t in
+                t.column("id", .serial).primaryKey().unique().notNull()
+                t.column("photoDate", .datetime)
+                t.column("photoYear", .integer).notNull().defaults(to: 0)
+                t.column("photoMonth", .integer).notNull().defaults(to: 0)
+                t.column("owner", .text).defaults(to: "")
+            })
         }
         
-        var err:Error?
         do {
-            let version = try Version.fetchOne(Database(profile: databaseProfile),
-                                                  sql: "select substring(ver, '\\d+')::int versions from version_migrations order by versions desc")
-                
-            print("version is \(version?.ver ?? Int.min)")
-            XCTAssertNotNil(version)
-            
+            try migrator.migrate()
         }catch{
-            err = error
-            print(error)
+            logger.log(.error, error)
         }
-        XCTAssertNil(err)
+        
+        XCTAssertNoThrow(try db.queryTableInfos(schema: "public"))
+        
+        let tables = try db.queryTableInfos(schema: "public")
+        XCTAssertNotEqual(0, tables.count)
+        
+        for table in tables {
+            XCTAssertNotEqual(0, table.columns.count)
+            
+            for column in table.columns {
+                print(column.toJSON())
+            }
+        }
     }
     
-    func testGetOneVersion() throws {
-        
-        let databaseProfile = DatabaseProfile()
-        databaseProfile.engine = "PostgreSQL"
-        databaseProfile.host = "localhost"
-        databaseProfile.port = 5432
-        databaseProfile.user = "kelvinwong"
-        databaseProfile.database = "ImageDocker"
-        databaseProfile.schema = "public"
-        databaseProfile.nopsw = true
-        
-        final class Version : DatabaseRecord {
-            var ver:String? = nil
-        }
-        
-        var err:Error?
-        do {
-            let version = try Version.fetchOne(Database(profile: databaseProfile),
-                                                  sql: "select ver from version_migrations where ver = $1 ", values: ["v1"])
-            XCTAssertNotNil(version)
-            XCTAssertEqual("v1", version?.ver)
-            print("version is \(version?.ver ?? "nil")")
-        }catch{
-            err = error
-            print(error)
-        }
-        XCTAssertNil(err)
-    }
 }
