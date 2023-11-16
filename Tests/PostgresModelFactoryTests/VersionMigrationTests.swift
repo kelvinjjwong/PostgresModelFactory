@@ -69,6 +69,8 @@ final class VersionMigrationTests: XCTestCase {
             }
         }
         
+        // insert
+        
         let record = Image()
         record.photoDate = Date()
         record.photoYear = 2023
@@ -81,13 +83,86 @@ final class VersionMigrationTests: XCTestCase {
             logger.log(.error, error)
         }
         
+        // count
+        XCTAssertNoThrow(try Image.count(db))
         do {
-            if let findRecord = try Image.fetchOne(db) {
-                logger.log("found record id: \(findRecord.id)")
-                logger.log(findRecord.toJSON())
+            let i = try Image.count(db)
+            XCTAssertEqual(1, i)
+        }catch {
+            logger.log(.error, error)
+        }
+        
+        // insert
+        
+        let record2 = Image()
+        record2.photoDate = Date()
+        record2.photoYear = 2025
+        record2.photoMonth = 8
+        record2.owner = "you"
+        
+        do{
+            try record2.save(db)
+        }catch{
+            logger.log(.error, error)
+        }
+        
+        // count
+        XCTAssertNoThrow(try Image.count(db))
+        do {
+            let i = try Image.count(db)
+            XCTAssertEqual(2, i)
+        }catch {
+            logger.log(.error, error)
+        }
+        
+        // query
+        
+        do {
+            if let findRecord = try Image.fetchOne(db, parameters: ["owner": "you"]) {
+                XCTAssertNotNil(findRecord)
+                logger.log("found record: \(findRecord.toJSON())")
+                
+                XCTAssertEqual(8, findRecord.photoMonth)
+                XCTAssertEqual("you", findRecord.owner)
+                XCTAssertNotEqual(0, findRecord.id)
+                
+                // update
+                findRecord.photoMonth = 5
+                
+                do{
+                    try findRecord.save(db)
+                }catch{
+                    logger.log(.error, error)
+                }
+                
+                if let findAgain = try Image.fetchOne(db, parameters: ["owner": "you"]) {
+                    XCTAssertNotNil(findAgain)
+                    logger.log("found record: \(findAgain.toJSON())")
+                    
+                    XCTAssertEqual(5, findAgain.photoMonth)
+                    XCTAssertEqual("you", findAgain.owner)
+                    XCTAssertEqual(findRecord.id, findAgain.id)
+                    
+                    // delete
+                    
+                    XCTAssertNoThrow(try findAgain.delete(db))
+                    
+                    let shouldDeleted = try Image.fetchOne(db, parameters: ["owner": "you"])
+                    
+                    XCTAssertNil(shouldDeleted)
+                    
+                    let j = try Image.count(db)
+                    
+                    XCTAssertEqual(1, j)
+                }
+                
+            }else{
+                logger.log("not found")
             }
         }catch{
             logger.log(.error, error)
         }
+        
+        
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LoggerFactory
 
 public protocol SchemaSQLGenerator {
     
@@ -159,6 +160,8 @@ public final class DefaultDatabaseChangeImplementer : DatabaseChangeImplement {
 
 public final class DatabaseVersionMigrator {
     
+    let logger = LoggerFactory.get(category: "DB", subCategory: "ModelFactory:DatabaseVersionMigrator")
+    
     var versions:[String] = []
     var migrators:[String : ((DatabaseChange) throws -> Void)] = [:]
     
@@ -188,15 +191,21 @@ public final class DatabaseVersionMigrator {
     public func migrate() throws {
         if versions.count > 0 {
             let database = DatabaseChange(impl: impl)
+            self.logger.log(.trace, "Initializing schema version record")
             try impl.initialise()
             if self.impl.shouldCleanVersions() {
+                self.logger.log(.trace, "Requested to delete all schema version records")
                 try impl.cleanVersions()
             }
             for version in versions {
+                self.logger.log(.trace, "Looking for schema version \(version)")
                 if let migration = migrators[version] {
                     if try !impl.exists(version: version) {
+                        self.logger.log(.trace, "Applying schema version \(version) ...")
                         try migration(database)
                         try impl.add(version: version)
+                    }else{
+                        self.logger.log(.trace, "Schema version \(version) already exist, ignored.")
                     }
                 }
             }
