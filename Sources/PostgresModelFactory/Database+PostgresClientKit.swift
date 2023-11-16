@@ -86,8 +86,6 @@ public class PostgresDB : DatabaseInterface {
     public func delete<T:Codable & EncodableDBRecord>(object:T, table:String, primaryKeys:[String]) throws {
         var _sql = ""
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let generator = SQLStatementGenerator(table: table, record: object)
             let statement = generator.deleteStatement(keyColumns: primaryKeys)
@@ -98,18 +96,18 @@ public class PostgresDB : DatabaseInterface {
             self.logger.log(.error, "[delete] Error at PostgresDB.delete(object:table:primaryKeys)")
             self.logger.log(.error, "[delete] Error at sql: \(_sql)", error)
             throw error
-//            self.logger.log(error)
         }
     }
     
     public func save<T:Codable & EncodableDBRecord>(object:T, table:String, primaryKeys:[String], autofillColumns:[String]) throws {
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let generator = SQLStatementGenerator(table: table, record: object)
             let existsStatement = generator.existsStatement(keyColumns: primaryKeys)
             self.logger.log(.trace, "[save][ifexists] >>> execute sql: \(existsStatement.sql) , parameters: \(existsStatement.arguments)")
+            
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            defer { connection.close() }
             let existsStmt = try connection.prepareStatement(text: existsStatement.sql)
             defer { existsStmt.close() }
             
@@ -153,8 +151,6 @@ public class PostgresDB : DatabaseInterface {
         
         var _sql = ""
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let _ = SQLStatementGenerator(table: table, record: object)
 //            let columnNames = generator.persistenceContainer.columns
@@ -167,6 +163,9 @@ public class PostgresDB : DatabaseInterface {
             _sql = "\(sql) \(pagination)"
             
             self.logger.log(.trace, "[query] >>> query sql: \(_sql) , parameters: \(values)")
+            
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            defer { connection.close() }
             
             let stmt = try connection.prepareStatement(text: "\(_sql)")
             defer { stmt.close() }
@@ -187,10 +186,6 @@ public class PostgresDB : DatabaseInterface {
         } catch {
             self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:sql:values:offset:limit) -> [T]")
             self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
-//            self.logger.log(error) // better error handling goes here
-//            if "\(error)".contains("Host is down") {
-//
-//            }
             throw error
         }
     }
@@ -198,8 +193,6 @@ public class PostgresDB : DatabaseInterface {
     public func query<T:Codable & EncodableDBRecord>(object:T, table:String, where whereSQL:String, orderBy:String = "", values:[DatabaseValueConvertible?] = [], offset:Int? = nil, limit:Int? = nil) throws -> [T] {
         var _sql = ""
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let generator = SQLStatementGenerator(table: table, record: object)
             let statement = generator.selectStatement(where: whereSQL, orderBy: orderBy, values: values, schema: self.databaseProfile.schema)
@@ -214,6 +207,9 @@ public class PostgresDB : DatabaseInterface {
             _sql = "\(statement.sql) \(pagination)"
             
             self.logger.log(.trace, "[query] >>> query sql: \(_sql)")
+            
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            defer { connection.close() }
             
             let stmt = try connection.prepareStatement(text: "\(_sql)")
             defer { stmt.close() }
@@ -234,7 +230,6 @@ public class PostgresDB : DatabaseInterface {
         } catch {
             self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:where:orderBy:values:offset:limit) -> [T]")
             self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
-//            self.logger.log(error) // better error handling goes here
             throw error
         }
     }
@@ -242,8 +237,6 @@ public class PostgresDB : DatabaseInterface {
     public func query<T:Codable & EncodableDBRecord>(object:T, table:String, parameters:[String:DatabaseValueConvertible?] = [:], orderBy:String = "") throws -> [T] {
         var _sql = ""
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let keyColumns:[String] = Array(parameters.keys)
             let values:[PostgresValueConvertible?] = Array(parameters.values)
@@ -256,6 +249,9 @@ public class PostgresDB : DatabaseInterface {
             _sql = statement.sql
             
             self.logger.log(.trace, "[query] >>> query sql: \(_sql)")
+            
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            defer { connection.close() }
             
             let stmt = try connection.prepareStatement(text: _sql)
             defer { stmt.close() }
@@ -276,7 +272,6 @@ public class PostgresDB : DatabaseInterface {
         } catch {
             self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:parameters:orderBy) -> [T]")
             self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
-//            self.logger.log(error) // better error handling goes here
             throw error
         }
     }
@@ -318,7 +313,6 @@ public class PostgresDB : DatabaseInterface {
             let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
             defer { connection.close() }
             
-            //self.logger.log(">> count sql: \(sql)")
             let stmt = try connection.prepareStatement(text: sql)
             defer { stmt.close() }
 
@@ -342,8 +336,6 @@ public class PostgresDB : DatabaseInterface {
     public func count<T:Codable & EncodableDBRecord>(object:T, table:String, parameters:[String:DatabaseValueConvertible?] = [:]) throws -> Int {
         var _sql = ""
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let keyColumns:[String] = Array(parameters.keys)
             let values:[PostgresValueConvertible?] = Array(parameters.values)
@@ -352,10 +344,13 @@ public class PostgresDB : DatabaseInterface {
             let statement = generator.countStatement(keyColumns: keyColumns)
             //let columnNames = generator.persistenceContainer.columns
             
-            //self.logger.log(">> count sql: \(statement.sql)")
-            let stmt = try connection.prepareStatement(text: statement.sql)
             _sql = statement.sql
             self.logger.log(.trace, "[count] >>> count sql: \(_sql) , parameters: \(values)")
+            
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            defer { connection.close() }
+            
+            let stmt = try connection.prepareStatement(text: statement.sql)
             defer { stmt.close() }
 
             let cursor = try stmt.execute(parameterValues: values)
@@ -378,8 +373,6 @@ public class PostgresDB : DatabaseInterface {
     public func count<T:Codable & EncodableDBRecord>(object:T, table:String, where whereSQL:String, values:[DatabaseValueConvertible?] = []) throws -> Int {
         var _sql = ""
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let generator = SQLStatementGenerator(table: table, record: object)
             let statement = generator.countStatement(where: whereSQL, values: values)
@@ -387,7 +380,10 @@ public class PostgresDB : DatabaseInterface {
             
             _sql = statement.sql
             self.logger.log(.trace, "[count] >>> count sql: \(_sql) , parameters: \(values)")
-//            self.logger.log(">> count sql: \(statement.sql)")
+            
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            defer { connection.close() }
+            
             let stmt = try connection.prepareStatement(text: statement.sql)
             defer { stmt.close() }
 
@@ -410,14 +406,15 @@ public class PostgresDB : DatabaseInterface {
     
     public func queryTableInfo(table:String, schema:String = "public") throws -> TableInfo {
         do {
-            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
-            defer { connection.close() }
             
             let generator = SQLStatementGenerator(table: "columns", record: PostgresColumnInfo())
             let statement = generator.selectStatement(columns: "column_name,data_type,is_nullable,is_identity,character_maximum_length,numeric_precision,numeric_precision_radix",
                                                       keyColumns: ["table_schema", "table_name"],
                                                       schema: "information_schema")
             let columnNames = generator.persistenceContainer.columns
+            
+            let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
+            defer { connection.close() }
             
             let stmt = try connection.prepareStatement(text: statement.sql)
             defer { stmt.close() }
