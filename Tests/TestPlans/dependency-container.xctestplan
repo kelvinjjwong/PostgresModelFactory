@@ -1,0 +1,27 @@
+{
+  "configurations" : [
+    {
+      "id" : "9E7C9A18-B662-4532-A992-92281ED5AF99",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "DependencyContainerTests\/testDependency()"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PostgresModelFactoryTests",
+        "name" : "PostgresModelFactoryTests"
+      }
+    }
+  ],
+  "version" : 1
+}
