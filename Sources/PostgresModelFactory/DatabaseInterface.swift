@@ -33,4 +33,6 @@ public protocol DatabaseInterface : DBExecutor {
     func count<T:Codable & EncodableDBRecord>(object:T, table:String, where whereSQL:String, values:[DatabaseValueConvertible?]) throws -> Int
     func queryTableInfo(table:String, schema:String) throws -> TableInfo
     func queryTableInfos(schema:String) throws -> [TableInfo]
+    func mappedTableInfo(table:String) -> TableInfo?
+    func mappedTableInfo(table:String, schema:String) -> TableInfo?
 }

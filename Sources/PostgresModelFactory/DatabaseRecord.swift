@@ -34,10 +34,14 @@ extension DatabaseRecord {
     }
     
     public func save(_ db: DatabaseInterface) throws {
-        try db.save(object: self, table: self.table(), primaryKeys: self.primaryKeys(), autofillColumns: self.autofillColumns())
+        let primaryKeys = self.primaryKeys().isEmpty ? db.mappedTableInfo(table: self.table())?.getPrimaryKey() ?? [] : self.primaryKeys()
+        let autofillColumns = self.autofillColumns().isEmpty ? db.mappedTableInfo(table: self.table())?.getAutofillColumns() ?? [] : self.autofillColumns()
+        try db.save(object: self, table: self.table(), primaryKeys: primaryKeys, autofillColumns: autofillColumns)
     }
     
     public func delete(_ db: DatabaseInterface, keyColumns:[String] = []) throws {
+        var primaryKeys = keyColumns.count > 0 ? keyColumns : self.primaryKeys()
+        primaryKeys = primaryKeys.isEmpty ? db.mappedTableInfo(table: self.table())?.getPrimaryKey() ?? [] : primaryKeys
         try db.delete(object: self, table: self.table(), primaryKeys: keyColumns.count > 0 ? keyColumns : self.primaryKeys())
     }
     

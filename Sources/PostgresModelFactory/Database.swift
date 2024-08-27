@@ -9,6 +9,7 @@ import Foundation
 
 public class Database : DatabaseInterface {
     
+    
     private let impl:DatabaseInterface
     
     public init(profile:DatabaseProfile) {
@@ -89,5 +90,13 @@ public class Database : DatabaseInterface {
     
     public func queryTableInfos(schema: String) throws -> [TableInfo] {
         try self.impl.queryTableInfos(schema: schema)
+    }
+    
+    public func mappedTableInfo(table: String) -> TableInfo? {
+        return self.impl.mappedTableInfo(table: table)
+    }
+    
+    public func mappedTableInfo(table: String, schema: String) -> TableInfo? {
+        return self.impl.mappedTableInfo(table: table, schema: schema)
     }
 }

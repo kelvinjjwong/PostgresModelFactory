@@ -70,6 +70,8 @@ final class FetchTests: XCTestCase {
         for table in tables {
             XCTAssertNotEqual(0, table.columns.count)
             
+            print(">>>>>>>> table: \(table.name) <<<<<<<<<<")
+            
             for column in table.columns {
                 print(column.toJSON())
             }
@@ -80,20 +82,11 @@ final class FetchTests: XCTestCase {
         // add new record
         final class Image : DatabaseRecord {
             var id = 0
-            var photoDate:Date = Date()
-            var photoDateTime:Date = Date()
             var photoYear:Int = 2024
             var photoMonth:Int = 8
+            var photoDate:Date = Date()
+            var photoDateTime:Date = Date()
             var owner:String = "me"
-            public init() {}
-            
-            func primaryKeys() -> [String] {
-                return ["id"]
-            }
-            
-            func autofillColumns() -> [String] {
-                return ["id"]
-            }
         }
         
         do {
@@ -119,6 +112,19 @@ final class FetchTests: XCTestCase {
         do {
             let records = try Image.fetchAll(db)
             for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        
+        print("======== query record by primary key ===========")
+        // query record
+        do {
+            if let r = try Image.fetchOne(db, parameters: ["id": 2]) {
                 print(r.id)
                 print(r.photoDate)
                 print(r.photoDateTime)

@@ -10,10 +10,13 @@ import LoggerFactory
 
 public class PostgresDB : DatabaseInterface {
     
+    
     fileprivate let logger = LoggerFactory.get(category: "DB", subCategory: "PostgresDB")
     
     private var databaseProfile:DatabaseProfile
     private var impl:DatabaseImplInterface
+    
+    private var tables:[String:TableInfo] = [:]
     
     public init(databaseProfile: DatabaseProfile) {
         self.databaseProfile = databaseProfile
@@ -26,6 +29,25 @@ public class PostgresDB : DatabaseInterface {
             fatalError("Unsupported engine [\(databaseProfile.engine)]")
         }
         self.schemaSqlGenerator = PostgresSchemaSQLGenerator()
+    }
+    
+    public func mappedTableInfo(table: String) -> TableInfo? {
+        return self.mappedTableInfo(table: table, schema: "public")
+    }
+    
+    public func mappedTableInfo(table:String, schema:String) -> TableInfo? {
+        if let info = self.tables[table] {
+            return info
+        }else{
+            do {
+                let info = try self.queryTableInfo(table: table, schema: schema)
+                self.tables[table] = info
+                return info
+            }catch{
+                self.logger.log(.error, error)
+                return nil
+            }
+        }
     }
     
     private let schemaSqlGenerator:SchemaSQLGenerator
@@ -50,7 +72,7 @@ public class PostgresDB : DatabaseInterface {
     }
     
     public func execute(sql: String, parameterValues:[DatabaseValueConvertible?]) throws {
-        self.logger.log(.trace, "[execute] >>> execute sql: \(sql)")
+        self.logger.log(.trace, "[execute] >>> execute sql: \(sql) , parameters: \(parameterValues)")
         let statement = SQLStatement(sql: sql)
         statement.arguments = parameterValues
         try self.impl.execute(statement: statement)
@@ -121,7 +143,7 @@ public class PostgresDB : DatabaseInterface {
             return try self.impl.query(object: object, table: table, sql: _sql, values: values)
         } catch {
             self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:sql:values:offset:limit) -> [T]")
-            self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[query] Error at sql: \(_sql) , parameters: \(values)", error)
             throw error
         }
     }
@@ -142,12 +164,12 @@ public class PostgresDB : DatabaseInterface {
             
             _sql = "\(statement.sql) \(pagination)"
             
-            self.logger.log(.trace, "[query] >>> query sql: \(_sql)")
+            self.logger.log(.trace, "[query] >>> query sql: \(_sql) , parameters: \(values)")
             
             return try self.impl.query(object: object, table: table, sql: _sql, values: values)
         } catch {
             self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:where:orderBy:values:offset:limit) -> [T]")
-            self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[query] Error at sql: \(_sql) , parameters: \(values)", error)
             throw error
         }
     }
@@ -166,12 +188,12 @@ public class PostgresDB : DatabaseInterface {
             
             _sql = statement.sql
             
-            self.logger.log(.trace, "[query] >>> query sql: \(_sql)")
+            self.logger.log(.trace, "[query] >>> query sql: \(_sql) , parameters: \(values)")
             
             return try self.impl.query(object: object, table: table, sql: _sql, values: values)
         } catch {
             self.logger.log(.error, "[query] Error at PostgresDB.query(object:table:parameters:orderBy) -> [T]")
-            self.logger.log(.error, "[query] Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[query] Error at sql: \(_sql) , parameters: \(Array(parameters.values))", error)
             throw error
         }
     }
@@ -213,7 +235,7 @@ public class PostgresDB : DatabaseInterface {
             return try self.impl.count(sql: sql, parameterValues: parameterValues)
         } catch {
             self.logger.log(.error, "[count] Error at PostgresDB.count(sql:parameterValues)")
-            self.logger.log(.error, "[count] Error sql: \(sql)", error)
+            self.logger.log(.error, "[count] Error sql: \(sql) , parameters: \(parameterValues)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
         }
@@ -236,7 +258,7 @@ public class PostgresDB : DatabaseInterface {
             return try self.impl.count(sql: _sql, parameterValues: values)
         } catch {
             self.logger.log(.error, "[count] Error at PostgresDB.count(object:table:parameters)")
-            self.logger.log(.error, "[count] Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[count] Error at sql: \(_sql) , parameters: \(Array(parameters.values))", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
         }
@@ -256,24 +278,30 @@ public class PostgresDB : DatabaseInterface {
             return try self.impl.count(sql: _sql, parameterValues: values)
         } catch {
             self.logger.log(.error, "[count] Error at PostgresDB.count(object:table:where:values)")
-            self.logger.log(.error, "[count] Error at sql: \(_sql)", error)
+            self.logger.log(.error, "[count] Error at sql: \(_sql) , parameters: \(values)", error)
 //            self.logger.log(error) // better error handling goes here
             throw error
         }
     }
     
-    public func queryTableInfo(table:String, schema:String = "public") throws -> TableInfo {
+    public func queryTableInfo(table:String) throws -> TableInfo {
+        return try self.queryTableInfo(table: table, schema: "public")
+    }
+    
+    public func queryTableInfo(table:String, schema:String) throws -> TableInfo {
         do {
             
             let generator = SQLStatementGenerator(table: "columns", record: PostgresColumnInfo())
-            let statement = generator.selectStatement(columns: "column_name,data_type,is_nullable,is_identity,character_maximum_length,numeric_precision,numeric_precision_radix",
+            let statement = generator.selectStatement(columns: "column_name,data_type,is_nullable,is_identity,character_maximum_length,numeric_precision,numeric_precision_radix,ordinal_position,column_default,udt_name",
                                                       keyColumns: ["table_schema", "table_name"],
+                                                      orderBy: "ordinal_position",
                                                       schema: "information_schema")
             let columnNames = generator.persistenceContainer.columns
             
             let tableInfo = TableInfo(table)
             let columnInfos = try self.impl.query(object: PostgresColumnInfo(), table: "information_schema", sql: statement.sql, values: [schema, table])
             tableInfo.columns = columnInfos
+            tableInfo.mapColumns()
             
             return tableInfo
         } catch {
@@ -297,8 +325,9 @@ public class PostgresDB : DatabaseInterface {
             
             for table in tableinfos {
                 let generator = SQLStatementGenerator(table: "columns", record: PostgresColumnInfo())
-                let statement = generator.selectStatement(columns: "column_name,data_type,is_nullable,is_identity,character_maximum_length,numeric_precision,numeric_precision_radix",
+                let statement = generator.selectStatement(columns: "column_name,data_type,is_nullable,is_identity,character_maximum_length,numeric_precision,numeric_precision_radix,ordinal_position,column_default,udt_name",
                                                           keyColumns: ["table_schema", "table_name"],
+                                                          orderBy: "ordinal_position",
                                                           schema: "information_schema")
                 
                 var tableInfo = TableInfo(table.table_name)
@@ -306,6 +335,7 @@ public class PostgresDB : DatabaseInterface {
                 let columnInfos = try self.impl.query(object: PostgresColumnInfo(), table: "tables", sql: statement.sql, values: [schema, table.table_name])
                 
                 tableInfo.columns = columnInfos
+                tableInfo.mapColumns()
                 tables.append(tableInfo)
                 
             }
