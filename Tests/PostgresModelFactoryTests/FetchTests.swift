@@ -82,26 +82,48 @@ final class FetchTests: XCTestCase {
         // add new record
         final class Image : DatabaseRecord {
             var id = 0
-            var photoYear:Int = 2024
-            var photoMonth:Int = 8
-            var photoDate:Date = Date()
-            var photoDateTime:Date = Date()
-            var owner:String = "me"
+            var photoYear = 0
+            var photoMonth = 0
+            var photoDate:Date?
+            var photoDateTime:Date?
+            var owner = ""
         }
         
         do {
             let record = Image()
+            record.photoYear = 1999
+            record.photoMonth = 2
+            record.owner = "me"
             try record.save(db)
+            
+            let rec1 = Image()
+            rec1.photoDate = Date()
+            rec1.photoDateTime = Date()
+            rec1.photoYear = 2024
+            rec1.photoMonth = 8
+            rec1.owner = "he"
+            try rec1.save(db)
             
             let rec2 = Image()
             rec2.photoDate = Date().adding(.day, value: 1)
             rec2.photoDateTime = Date().adding(.day, value: 1)
+            rec2.photoYear = 2022
+            rec2.photoMonth = 6
+            rec2.owner = "you"
             try rec2.save(db)
             
             let rec3 = Image()
             rec3.photoDate = Date().adding(.day, value: -1)
             rec3.photoDateTime = Date().adding(.day, value: -1)
+            rec3.photoYear = 2033
+            rec3.photoMonth = 12
+            rec3.owner = "she"
             try rec3.save(db)
+            
+            let rec4 = Image()
+            rec4.photoDate = Date().adding(.day, value: -99)
+            rec4.photoDateTime = Date().adding(.day, value: -99)
+            try rec4.save(db)
             
         }catch {
             logger.log(.error, error)
