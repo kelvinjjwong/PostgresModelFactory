@@ -23,3 +23,5 @@ extension PostgresTimeWithTimeZone : DatabaseValueConvertible {}
 extension PostgresTimestamp : DatabaseValueConvertible {}
 extension PostgresTimestampWithTimeZone : DatabaseValueConvertible {}
 extension PostgresValue : DatabaseValueConvertible {}
+extension Date : DatabaseValueConvertible {}
+

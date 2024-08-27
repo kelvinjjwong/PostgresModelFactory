@@ -23,6 +23,9 @@ final class FetchTests: XCTestCase {
         
         let logger = LoggerFactory.get(category: "DB", subCategory: "testGetTableInfo")
         
+        print("======== setup profile ===========")
+        
+        // profile
         let databaseProfile = DatabaseProfile()
         databaseProfile.engine = "PostgreSQL"
         databaseProfile.host = "localhost"
@@ -34,12 +37,16 @@ final class FetchTests: XCTestCase {
         
         let db = Database.init(profile: databaseProfile)
         
+        print("======== create schema ===========")
+        
+        // create schema
         let migrator = DatabaseVersionMigrator(db).dropBeforeCreate(true).cleanVersions(true)
         
         migrator.version("v1") { db in
             try db.create(table: "Image", body: { t in
                 t.column("id", .serial).primaryKey().unique().notNull()
-                t.column("photoDate", .datetime)
+                t.column("photoDate", .date)
+                t.column("photoDateTime", .datetime)
                 t.column("photoYear", .integer).notNull().defaults(to: 0)
                 t.column("photoMonth", .integer).notNull().defaults(to: 0)
                 t.column("owner", .text).defaults(to: "")
@@ -52,6 +59,9 @@ final class FetchTests: XCTestCase {
             logger.log(.error, error)
         }
         
+        print("======== query table info ===========")
+        
+        // query table info
         XCTAssertNoThrow(try db.queryTableInfos(schema: "public"))
         
         let tables = try db.queryTableInfos(schema: "public")
@@ -64,6 +74,87 @@ final class FetchTests: XCTestCase {
                 print(column.toJSON())
             }
         }
+        
+        print("======== add new record ===========")
+        
+        // add new record
+        final class Image : DatabaseRecord {
+            var id = 0
+            var photoDate:Date = Date()
+            var photoDateTime:Date = Date()
+            var photoYear:Int = 2024
+            var photoMonth:Int = 8
+            var owner:String = "me"
+            public init() {}
+            
+            func primaryKeys() -> [String] {
+                return ["id"]
+            }
+            
+            func autofillColumns() -> [String] {
+                return ["id"]
+            }
+        }
+        
+        do {
+            let record = Image()
+            try record.save(db)
+            
+            let rec2 = Image()
+            rec2.photoDate = Date().adding(.day, value: 1)
+            rec2.photoDateTime = Date().adding(.day, value: 1)
+            try rec2.save(db)
+            
+            let rec3 = Image()
+            rec3.photoDate = Date().adding(.day, value: -1)
+            rec3.photoDateTime = Date().adding(.day, value: -1)
+            try rec3.save(db)
+            
+        }catch {
+            logger.log(.error, error)
+        }
+        
+        print("======== query record ===========")
+        // query record
+        do {
+            let records = try Image.fetchAll(db)
+            for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        print("======== query record with parameter date specified timezone ===========")
+        // query record with custom parameter
+        do {
+            let records = try Image.fetchAll(db, parameters: ["photoDate": Date().postgresDate(in: .current)])
+            for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        print("======== query record with parameter date ===========")
+        // query record with custom parameter
+        do {
+            let records = try Image.fetchAll(db, parameters: ["photoDate": Date()])
+            for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        
+        
     }
     
 }

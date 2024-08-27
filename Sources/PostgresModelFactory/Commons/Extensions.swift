@@ -21,6 +21,13 @@ extension String {
     }
 }
 
+extension Date {
+    
+    func adding(_ component: Calendar.Component, value: Int) -> Date {
+        return Calendar.current.date(byAdding: component, value: value, to: self) ?? self
+    }
+}
+
 
 @usableFromInline
 func add(_ value: inout Int) -> String {

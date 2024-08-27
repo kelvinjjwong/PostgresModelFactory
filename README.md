@@ -6,7 +6,7 @@ Built for  ![Platform](https://img.shields.io/badge/platform-macOS%2011%20+-ff77
 
 Built with ![swift](https://img.shields.io/badge/Swift-5-blue) ![xcode](https://img.shields.io/badge/Xcode-14.3-blue) ![SPM](https://img.shields.io/badge/SPM-ff7711)
 
-## Usage and Demo
+## Usage
 
 #### Define a model class for a database table
 
@@ -23,9 +23,9 @@ Built with ![swift](https://img.shields.io/badge/Swift-5-blue) ![xcode](https://
 
 - [FooDaoPostgresCK](https://github.com/kelvinjjwong/PostgresModelApp/blob/master/PostgresModelApp/Data/DAO/FooDaoPostgresCK.swift)
 
-#### Sample usage
+## Sample
 
-- [ViewController](https://github.com/kelvinjjwong/PostgresModelApp/blob/master/PostgresModelApp/ViewController.swift)
+- [FetchTests](https://github.com/kelvinjjwong/PostgresModelFactory/blob/master/Tests/PostgresModelFactoryTests/FetchTests.swift)
 
 
 ## Installation
