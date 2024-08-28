@@ -21,6 +21,8 @@ public class DatabaseProfile : Codable {
     var nopsw = true
     var ssl = false
     
+    public init() {}
+    
     public func id() -> String {
         return "\(engine):\(host):\(database):\(schema)"
     }
