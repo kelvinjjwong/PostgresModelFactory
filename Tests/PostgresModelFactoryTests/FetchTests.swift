@@ -181,6 +181,19 @@ final class FetchTests: XCTestCase {
         }catch {
             logger.log(.error, error)
         }
+        print("======== query record with sql ===========")
+        // query record with custom parameter
+        final class TempRecord:DatabaseRecord {
+            var photoMonth: Int? = 0
+            public init() {}
+        }
+        do {
+            if let r = try TempRecord.fetchOne(db, sql: "select distinct max(\"photoMonth\") \"photoMonth\" from \"Image\"") {
+                print(r.photoMonth)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
         
         
     }
