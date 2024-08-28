@@ -1,5 +1,5 @@
 #!/bin/bash
-#Version:1.0.5
+#Version:1.0.6
 SCRIPT_VERSION=`grep "Version:" $0 | head -1 | awk -F':' '{print $NF}'`
 echo "Current SPA VERSION: $SCRIPT_VERSION"
 echo 
@@ -74,8 +74,11 @@ if [[ $? -ne 0 ]]; then
 fi
 
 GIT_USER="`grep 'user:' ~/.config/gh/hosts.yml | awk -F': ' '{print $NF}'`"
-GIT_BASE_BRANCH="main"
 GIT_REPOSITORY="${PWD##*/}"
+GIT_BASE_BRANCH="`gh repo view ${GIT_USER}/${GIT_REPOSITORY} --json defaultBranchRef --template "{{.defaultBranchRef}}" | tr '[]' ':' | awk -F':' '{print $(NF-1)}'`"
+if [[ "$GIT_BASE_BRANCH" = "" ]]; then
+    GIT_BASE_BRANCH="main"
+fi
 
 REQUIRE_UPPERCASE=`echo ${PWD##*/} | awk '{for (i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)} 1'`
 
