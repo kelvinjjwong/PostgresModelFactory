@@ -9,17 +9,17 @@ import Foundation
 
 public class DatabaseProfile : Codable {
     
-    var engine = ""
-    var selected = false
+    public var engine = ""
+    public var selected = false
     
-    var host = ""
-    var port:Int = 0
-    var user = ""
-    var database = ""
-    var schema = ""
-    var password = ""
-    var nopsw = true
-    var ssl = false
+    public var host = ""
+    public var port:Int = 0
+    public var user = ""
+    public var database = ""
+    public var schema = ""
+    public var password = ""
+    public var nopsw = true
+    public var ssl = false
     
     public init() {}
     
