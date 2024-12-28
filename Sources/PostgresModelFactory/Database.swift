@@ -28,6 +28,10 @@ public class Database : DatabaseInterface {
         try self.impl.connect()
     }
     
+    public func version() throws -> String {
+        return try self.impl.version()
+    }
+    
     public func execute(sql: String) throws {
         try self.impl.execute(sql: sql)
     }

@@ -65,6 +65,25 @@ public class PostgresDB : DatabaseInterface {
         }
     }
     
+    public func version() throws -> String {
+        final class TempRecord : DatabaseRecord {
+            var ver:String = ""
+            public init() {}
+        }
+        
+        var records:[TempRecord] = []
+        do {
+            records = try TempRecord.fetchAll(self, sql: "select version() as ver")
+        }catch{
+            self.logger.log(.error, error)
+            return error.localizedDescription
+        }
+        if records.count == 1 {
+            return records[0].ver
+        }
+        return ""
+    }
+    
     public func execute(sql: String) throws {
         self.logger.log(.trace, "[execute] >>> execute sql: \(sql)")
         let statement = SQLStatement(sql: sql)
@@ -296,7 +315,7 @@ public class PostgresDB : DatabaseInterface {
                                                       keyColumns: ["table_schema", "table_name"],
                                                       orderBy: "ordinal_position",
                                                       schema: "information_schema")
-            let columnNames = generator.persistenceContainer.columns
+            let _ = generator.persistenceContainer.columns
             
             let tableInfo = TableInfo(table)
             let columnInfos = try self.impl.query(object: PostgresColumnInfo(), table: "information_schema", sql: statement.sql, values: [schema, table])
@@ -330,7 +349,7 @@ public class PostgresDB : DatabaseInterface {
                                                           orderBy: "ordinal_position",
                                                           schema: "information_schema")
                 
-                var tableInfo = TableInfo(table.table_name)
+                let tableInfo = TableInfo(table.table_name)
                 
                 let columnInfos = try self.impl.query(object: PostgresColumnInfo(), table: "tables", sql: statement.sql, values: [schema, table.table_name])
                 

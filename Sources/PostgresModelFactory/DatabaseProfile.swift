@@ -20,6 +20,7 @@ public class DatabaseProfile : Codable {
     public var password = ""
     public var nopsw = true
     public var ssl = false
+    public var socketTimeoutInSeconds = 0
     
     public init() {}
     

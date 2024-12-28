@@ -17,6 +17,7 @@ public protocol DBExecutor {
 public protocol DatabaseInterface : DBExecutor {
     
     func connect() throws
+    func version() throws -> String
     func execute(sql: String) throws
     func execute(sql: String, parameterValues:[DatabaseValueConvertible?]) throws
     func delete<T:Codable & EncodableDBRecord>(object:T, table:String, primaryKeys:[String]) throws

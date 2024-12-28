@@ -34,6 +34,7 @@ public class DatabaseImplPostgresClientKit : DatabaseImplInterface {
             configuration.credential = .trust
         }
         configuration.ssl = databaseProfile.ssl
+        configuration.socketTimeout = databaseProfile.socketTimeoutInSeconds
         self.postgresConfig = configuration
     }
     
