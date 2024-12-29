@@ -25,7 +25,7 @@ public class DatabaseProfile : Codable {
     public init() {}
     
     public func id() -> String {
-        return "\(engine):\(host):\(database):\(schema)"
+        return "\(engine):\(host):\(port):\(database):\(schema)"
     }
     
     public func toJSON() -> String {
