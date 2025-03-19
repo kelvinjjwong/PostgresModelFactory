@@ -18,6 +18,7 @@ public class DatabaseProfile : Codable {
     public var database = ""
     public var schema = ""
     public var password = ""
+    public var passwordEncryptMethod = ""
     public var nopsw = true
     public var ssl = false
     public var socketTimeoutInSeconds = 0

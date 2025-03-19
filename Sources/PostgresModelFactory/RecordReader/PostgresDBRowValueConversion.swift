@@ -7,6 +7,9 @@
 
 import Foundation
 import PostgresClientKit
+import LoggerFactory
+
+fileprivate var logger = LoggerFactory.get(category: "DB", subCategory: "PostgresDB:PostgresClientKit")
 
 public protocol PostgresRowValueProtocol {
     
@@ -17,6 +20,8 @@ extension PostgresRowValueProtocol {
     
     static func decode(from row: PostgresRow, atUncheckedIndex index: Int) -> Self {
         //print("column size: \(row.values.count), decode index: \(index)")
+        logger.log(.trace, "[PostgresRowValueProtocol][decode] \(row)")
+        logger.log(.trace, "[PostgresRowValueProtocol][decode][columns] \(row.columnNames)")
         let dbValue = row.values[index].postgresValue // FIXME: should change to postgresValue? to identify nil?
         //self.logger.log("decoding table [\(row.table)] column: \(row.columnNames[index])")
         //self.logger.log(" >> value to be decoded: \(dbValue.rawValue ?? "nil")")
@@ -26,6 +31,7 @@ extension PostgresRowValueProtocol {
 //            self.logger.log("value decoded: \(value)")
             return value
         } else {
+            logger.log(.error, "[PostgresRowValueProtocol] fatal error: decoding table [\(row.table)] column(index:\(index)) [\(row.columnNames[index])] with value [\(dbValue.rawValue ?? "nil")]")
             print("\(Date()) [PostgresRowValueProtocol] fatal error: decoding table [\(row.table)] column(index:\(index)) [\(row.columnNames[index])] with value [\(dbValue.rawValue ?? "nil")]")
             fatalConversionError(to: Self.self, from: dbValue)
         }
@@ -33,6 +39,7 @@ extension PostgresRowValueProtocol {
     
     static func decodeIfPresent(from row: PostgresRow, atUncheckedIndex index: Int) -> Self? {
         //self.logger.log("decodeIfPresent column size: \(row.values.count), decode index: \(index)")
+        logger.log(.trace, "[PostgresRowValueProtocol][decodeIfPresent] \(row)")
         let dbValue = row.values[index].postgresValue
         //self.logger.log("decodeIfPresent decoding table [\(row.table)] column: \(row.columnNames[index])")
         //self.logger.log(" >> decodeIfPresent value to be decoded: \(dbValue.rawValue ?? "nil")")

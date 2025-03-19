@@ -50,6 +50,8 @@ final class FetchTests: XCTestCase {
                 t.column("photoYear", .integer).notNull().defaults(to: 0)
                 t.column("photoMonth", .integer).notNull().defaults(to: 0)
                 t.column("owner", .text).defaults(to: "")
+                t.column("tags", .json)
+                t.column("tagb", .jsonb)
             })
         }
         
@@ -82,11 +84,17 @@ final class FetchTests: XCTestCase {
         // add new record
         final class Image : DatabaseRecord {
             var id = 0
-            var photoYear = 0
-            var photoMonth = 0
             var photoDate:Date?
             var photoDateTime:Date?
+            var photoYear = 0
+            var photoMonth = 0
             var owner = ""
+            var tags:String? = nil
+            var tagb:String? = nil
+            
+            func primaryKeys() -> [String] {
+                return ["id"]
+            }
         }
         
         do {
@@ -94,6 +102,12 @@ final class FetchTests: XCTestCase {
             record.photoYear = 1999
             record.photoMonth = 2
             record.owner = "me"
+            record.tags = """
+{"sex":"female"}
+"""
+            record.tagb = """
+{"sex":"male"}
+"""
             try record.save(db)
             
             let rec1 = Image()
@@ -138,6 +152,8 @@ final class FetchTests: XCTestCase {
                 print(r.photoDate)
                 print(r.photoDateTime)
                 print(r.owner)
+                print(r.tags)
+                print(r.tagb)
             }
         }catch {
             logger.log(.error, error)
@@ -151,6 +167,8 @@ final class FetchTests: XCTestCase {
                 print(r.photoDate)
                 print(r.photoDateTime)
                 print(r.owner)
+                print(r.tags)
+                print(r.tagb)
             }
         }catch {
             logger.log(.error, error)
@@ -164,6 +182,8 @@ final class FetchTests: XCTestCase {
                 print(r.photoDate)
                 print(r.photoDateTime)
                 print(r.owner)
+                print(r.tags)
+                print(r.tagb)
             }
         }catch {
             logger.log(.error, error)
@@ -177,6 +197,8 @@ final class FetchTests: XCTestCase {
                 print(r.photoDate)
                 print(r.photoDateTime)
                 print(r.owner)
+                print(r.tags)
+                print(r.tagb)
             }
         }catch {
             logger.log(.error, error)
@@ -190,6 +212,60 @@ final class FetchTests: XCTestCase {
         do {
             if let r = try TempRecord.fetchOne(db, sql: "select distinct max(\"photoMonth\") \"photoMonth\" from \"Image\"") {
                 print(r.photoMonth)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        print("======== query record with json field ===========")
+        // query record with custom parameter
+        do {
+            let records = try Image.fetchAll(db, sql: """
+select * from "Image" where ("tags"->>'sex') = 'female'
+""")
+            for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+                print(r.tags)
+                print(r.tagb)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        print("======== query record with jsonb field ===========")
+        // query record with custom parameter
+        do {
+            let records = try Image.fetchAll(db, sql: """
+select * from "Image" where ("tagb"->>'sex') = 'male'
+""")
+            for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+                print(r.tags)
+                print(r.tagb)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        print("======== update record with jsonb field ===========")
+        // query record with custom parameter
+        do {
+            try db.execute(sql: """
+update "Image" set "tagb" = jsonb_set("tagb", array['is_default'], to_jsonb(false)) where ("tagb"->>'sex') = 'male'
+""")
+            let records = try Image.fetchAll(db, sql: """
+select * from "Image" where ("tagb"->>'sex') = 'male'
+""")
+            for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+                print(r.tags)
+                print(r.tagb)
             }
         }catch {
             logger.log(.error, error)

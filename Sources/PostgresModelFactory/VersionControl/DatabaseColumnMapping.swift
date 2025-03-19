@@ -57,4 +57,10 @@ public struct ColumnType: RawRepresentable, Hashable {
     
     /// The `DATETIME` SQL column type
     public static let datetime = ColumnType("DATETIME")
+    
+    /// The `JSON` SQL column type
+    public static let json = ColumnType("JSON")
+    
+    /// The `JSONB` SQL column type
+    public static let jsonb = ColumnType("JSONB")
 }

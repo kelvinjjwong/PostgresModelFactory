@@ -47,6 +47,10 @@ public final class PostgresSchemaSQLGenerator : SchemaSQLGenerator {
                 return "BIGSERIAL"
             case .numeric:
                 return "DECIMAL"
+            case .json:
+                return "JSON"
+            case .jsonb:
+                return "JSONB"
             default:
                 return "TEXT"
             }

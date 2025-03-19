@@ -28,10 +28,17 @@ public class DatabaseImplPostgresClientKit : DatabaseImplInterface {
         configuration.port = databaseProfile.port
         configuration.database = databaseProfile.database
         configuration.user = databaseProfile.user
-        if !databaseProfile.nopsw {
-            configuration.credential = .cleartextPassword(password: databaseProfile.password)
-        }else{
+        if databaseProfile.nopsw {
             configuration.credential = .trust
+        }else{
+            if databaseProfile.passwordEncryptMethod.lowercased() == "md5" {
+                configuration.credential = .md5Password(password: databaseProfile.password)
+            }else if databaseProfile.passwordEncryptMethod.lowercased() == "sha"
+                        || databaseProfile.passwordEncryptMethod.lowercased() == "sha256" {
+                configuration.credential = .scramSHA256(password: databaseProfile.password)
+            }else{
+                configuration.credential = .cleartextPassword(password: databaseProfile.password)
+            }
         }
         configuration.ssl = databaseProfile.ssl
         configuration.socketTimeout = databaseProfile.socketTimeoutInSeconds
