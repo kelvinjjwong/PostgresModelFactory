@@ -13,5 +13,5 @@ Pod::Spec.new do |s|
   s.source_files = "Sources/PostgresModelFactory/**/*.swift"
 
   s.dependency 'PostgresClientKit', '~> 1.5.0'
-  s.dependency 'LoggerFactory', '~> 1.1.0'
+  s.dependency 'LoggerFactory', '~> 1.1.3'
 end
