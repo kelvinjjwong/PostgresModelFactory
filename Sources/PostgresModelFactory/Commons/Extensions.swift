@@ -19,6 +19,10 @@ extension String {
     @inlinable public var quotedDatabaseValueIdentifier: String {
         return "\'\(self)\'"
     }
+    
+    func containsIgnoringCase(find: String) -> Bool{
+        return self.range(of: find, options: .caseInsensitive) != nil
+    }
 }
 
 extension Date {

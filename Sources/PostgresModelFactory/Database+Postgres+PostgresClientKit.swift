@@ -90,11 +90,16 @@ public class DatabaseImplPostgresClientKit : DatabaseImplInterface {
         let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
         defer { connection.close() }
         
+        let regex = #/LIMIT ([0-9]+)/#
+        let modSql = sql.replacing(regex.ignoresCase(), with: "LIMIT 1")
+        
+        print(modSql)
+        
         // ------ get column names ----------
         let stmt_getColumnNames = try connection.prepareStatement(text: """
 SELECT json_object_keys(row_to_json(t)) as col FROM
- (\(sql)
-  LIMIT 1) t
+ (\(modSql)
+  \(sql.containsIgnoringCase(find: "limit") ? "" : "LIMIT 1")) t
 """)
         defer { stmt_getColumnNames.close() }
         

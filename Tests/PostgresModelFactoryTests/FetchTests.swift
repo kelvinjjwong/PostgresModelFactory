@@ -265,7 +265,7 @@ select * from "Image" where ("tagb"->>'sex') = 'male'
 update "Image" set "tagb" = jsonb_set("tagb", array['is_default'], to_jsonb(false)) where ("tagb"->>'sex') = 'male'
 """)
             let records = try Image.fetchAll(db, sql: """
-select * from "Image" where ("tagb"->>'sex') = 'male'
+select * from "Image" where ("tagb"->>'sex') = 'male' limit 200
 """)
             for r in records {
                 print(r.id)
@@ -291,10 +291,37 @@ update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{a,d,f}')) w
             try db.execute(sql: """
 update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{z,x,f}')) where "owner" = 'me'
 """)
+            try db.execute(sql: """
+update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{a,b,c}')) where "owner" = 'you'
+""")
+            try db.execute(sql: """
+update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{a,d,f}')) where "owner" = 'you'
+""")
+            try db.execute(sql: """
+update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{z,x,f}')) where "owner" = 'he'
+""")
             let records = try Image.fetchAll(db, sql: """
-select * from "Image" where "owner" = 'me'
+select * from "Image" where 'z' = ANY("tagx") LIMIT 200
 """)
             for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+                print(r.tags)
+                print(r.tagb)
+                print(r.tagx)
+            }
+            
+            
+            try db.execute(sql: """
+update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST(array_remove("tagx",'c'))) where "owner" = 'me'
+""")
+            
+            let records2 = try Image.fetchAll(db, sql: """
+select * from "Image" where "owner" = 'me'
+""")
+            for r in records2 {
                 print(r.id)
                 print(r.photoDate)
                 print(r.photoDateTime)
