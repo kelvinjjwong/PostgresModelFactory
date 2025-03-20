@@ -85,10 +85,10 @@ final class FetchTests: XCTestCase {
         // add new record
         final class Image : DatabaseRecord {
             var id = 0
-            var photoDate:Date?
-            var photoDateTime:Date?
             var photoYear = 0
             var photoMonth = 0
+            var photoDate:Date?
+            var photoDateTime:Date?
             var owner = ""
             var tags:String? = nil
             var tagb:String? = nil

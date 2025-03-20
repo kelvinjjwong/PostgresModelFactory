@@ -90,6 +90,26 @@ public class DatabaseImplPostgresClientKit : DatabaseImplInterface {
         let connection = try PostgresClientKit.Connection(configuration: self.postgresConfig)
         defer { connection.close() }
         
+        // ------ get column names ----------
+        let stmt_getColumnNames = try connection.prepareStatement(text: """
+SELECT json_object_keys(row_to_json(t)) as col FROM
+ (\(sql)
+  LIMIT 1) t
+""")
+        defer { stmt_getColumnNames.close() }
+        
+        let cursor_getColumnNames = try stmt_getColumnNames.execute(parameterValues: values)
+        defer { cursor_getColumnNames.close() }
+        
+        var columnNames:[String] = []
+        for _row in cursor_getColumnNames {
+            let columns = try _row.get().columns
+            let name = try columns[0].string()
+            columnNames.append(name)
+        }
+        
+        // -------------------------------------
+        
         let stmt = try connection.prepareStatement(text: "\(sql)")
         defer { stmt.close() }
 
@@ -99,7 +119,10 @@ public class DatabaseImplPostgresClientKit : DatabaseImplInterface {
         var result:[T] = []
         for row in cursor {
             let columns = try row.get().columns
-            let row = PostgresRow.read(object, types: [], values: columns) // PostgresRow(columnNames: columnNames, values: columns)
+            var row = PostgresRow(columnNames: columnNames, types: [], values: columns) // got column names from pg
+            if columnNames == [] { // if not, get column names by reflecting the swift object class
+                row = PostgresRow.read(object, types: [], values: columns) // PostgresRow(columnNames: columnNames, values: columns)
+            }
             row.table = table
             if let obj:T = try PostgresRowDecoder().decodeIfPresent(from: row) {
                 result.append(obj)
