@@ -51,6 +51,10 @@ public final class PostgresSchemaSQLGenerator : SchemaSQLGenerator {
                 return "JSON"
             case .jsonb:
                 return "JSONB"
+            case .text_array:
+                return "TEXT[]"
+            case .text_array_array:
+                return "TEXT[][]"
             default:
                 return "TEXT"
             }

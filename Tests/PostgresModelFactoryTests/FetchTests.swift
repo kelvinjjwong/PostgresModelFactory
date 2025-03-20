@@ -52,6 +52,7 @@ final class FetchTests: XCTestCase {
                 t.column("owner", .text).defaults(to: "")
                 t.column("tags", .json)
                 t.column("tagb", .jsonb)
+                t.column("tagx", .text_array)
             })
         }
         
@@ -91,6 +92,7 @@ final class FetchTests: XCTestCase {
             var owner = ""
             var tags:String? = nil
             var tagb:String? = nil
+            var tagx:String? = nil
             
             func primaryKeys() -> [String] {
                 return ["id"]
@@ -154,6 +156,7 @@ final class FetchTests: XCTestCase {
                 print(r.owner)
                 print(r.tags)
                 print(r.tagb)
+                print(r.tagx)
             }
         }catch {
             logger.log(.error, error)
@@ -169,6 +172,7 @@ final class FetchTests: XCTestCase {
                 print(r.owner)
                 print(r.tags)
                 print(r.tagb)
+                print(r.tagx)
             }
         }catch {
             logger.log(.error, error)
@@ -184,6 +188,7 @@ final class FetchTests: XCTestCase {
                 print(r.owner)
                 print(r.tags)
                 print(r.tagb)
+                print(r.tagx)
             }
         }catch {
             logger.log(.error, error)
@@ -199,6 +204,7 @@ final class FetchTests: XCTestCase {
                 print(r.owner)
                 print(r.tags)
                 print(r.tagb)
+                print(r.tagx)
             }
         }catch {
             logger.log(.error, error)
@@ -229,6 +235,7 @@ select * from "Image" where ("tags"->>'sex') = 'female'
                 print(r.owner)
                 print(r.tags)
                 print(r.tagb)
+                print(r.tagx)
             }
         }catch {
             logger.log(.error, error)
@@ -246,6 +253,7 @@ select * from "Image" where ("tagb"->>'sex') = 'male'
                 print(r.owner)
                 print(r.tags)
                 print(r.tagb)
+                print(r.tagx)
             }
         }catch {
             logger.log(.error, error)
@@ -266,6 +274,34 @@ select * from "Image" where ("tagb"->>'sex') = 'male'
                 print(r.owner)
                 print(r.tags)
                 print(r.tagb)
+                print(r.tagx)
+            }
+        }catch {
+            logger.log(.error, error)
+        }
+        print("======== update record with text array field (unique) ===========")
+        // query record with custom parameter
+        do {
+            try db.execute(sql: """
+update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{a,b,c}')) where "owner" = 'me'
+""")
+            try db.execute(sql: """
+update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{a,d,f}')) where "owner" = 'me'
+""")
+            try db.execute(sql: """
+update "Image" set "tagx" = ARRAY(SELECT DISTINCT UNNEST("tagx" || '{z,x,f}')) where "owner" = 'me'
+""")
+            let records = try Image.fetchAll(db, sql: """
+select * from "Image" where "owner" = 'me'
+""")
+            for r in records {
+                print(r.id)
+                print(r.photoDate)
+                print(r.photoDateTime)
+                print(r.owner)
+                print(r.tags)
+                print(r.tagb)
+                print(r.tagx)
             }
         }catch {
             logger.log(.error, error)

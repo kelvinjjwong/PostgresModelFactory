@@ -63,4 +63,10 @@ public struct ColumnType: RawRepresentable, Hashable {
     
     /// The `JSONB` SQL column type
     public static let jsonb = ColumnType("JSONB")
+    
+    /// The `text[]` SQL column type
+    public static let text_array = ColumnType("TEXT[]")
+    
+    /// The `text[][]` SQL column type
+    public static let text_array_array = ColumnType("TEXT[][]")
 }
