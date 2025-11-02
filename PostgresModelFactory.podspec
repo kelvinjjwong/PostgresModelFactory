@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name        = "PostgresModelFactory"
-  s.version     = "1.0.19"
+  s.version     = "1.0.20"
   s.summary     = "A library to access PostgreSQL database by codable models."
   s.homepage    = "https://github.com/kelvinjjwong/PostgresModelFactory"
   s.license     = { :type => "MIT" }
@@ -13,5 +13,5 @@ Pod::Spec.new do |s|
   s.source_files = "Sources/PostgresModelFactory/**/*.swift"
 
   s.dependency 'PostgresClientKit', '~> 1.5.0'
-  s.dependency 'LoggerFactory', '~> 1.1.3'
+  s.dependency 'LoggerFactory', '~> 1.2.0'
 end
